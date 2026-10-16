@@ -1,0 +1,23 @@
+@utility page-container {
+  @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
+}
+@utility surface-card {
+  @apply rounded-2xl border border-border bg-card;
+  box-shadow: var(--shadow-card);
+}
+@utility eyebrow {
+  @apply text-[10px] font-bold tracking-[.18em] uppercase;
+}
+@utility action-link {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90;
+}
+@utility quiet-link {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold transition-colors hover:bg-muted;
+}
+@utility section-title {
+  @apply text-2xl font-semibold tracking-tight sm:text-[28px];
+}
+@utility dot-texture {
+  background-image: radial-gradient(currentColor 0.8px, transparent 0.8px);
+  background-size: 16px 16px;
+}

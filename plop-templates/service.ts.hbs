@@ -1,0 +1,9 @@
+import { apiClient } from '@/api/api.client';
+
+// Replace unknown with the backend response contract before use.
+export const {{camelCase name}}Service = {
+  async list(signal?: AbortSignal): Promise<unknown> {
+    const { data } = await apiClient.get<unknown>('/{{kebabCase name}}', { signal });
+    return data;
+  },
+};
