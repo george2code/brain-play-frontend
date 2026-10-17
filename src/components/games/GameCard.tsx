@@ -8,20 +8,39 @@ import { ROUTES } from '@/config/routes.config';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
-import type { GameDefinition } from '@/shared/types/game.types';
+import type { GameDefinition, NumberLevel } from '@/shared/types/game.types';
+
+const trophyColor: Record<NumberLevel, string> = {
+  mixed: 'text-trophy-gold',
+  hard: 'text-trophy-silver',
+  medium: 'text-trophy-bronze',
+  easy: 'text-trophy-easy',
+};
 
 export function GameCard({
   game,
   best,
   played,
   accuracy,
+  numberBestLevel,
 }: {
   game: GameDefinition;
   best?: number;
   played?: number;
   accuracy?: number;
+  numberBestLevel?: NumberLevel;
 }) {
   const { locale, t } = useLocale();
+  const levelLabel =
+    numberBestLevel === 'mixed'
+      ? t.numberMixed
+      : numberBestLevel === 'hard'
+        ? t.numberHard
+        : numberBestLevel === 'medium'
+          ? t.numberMedium
+          : numberBestLevel === 'easy'
+            ? t.numberEasy
+            : null;
   return (
     <article className="surface-card group overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5">
       <Link
@@ -56,10 +75,21 @@ export function GameCard({
                 <>
                   <span
                     className="inline-flex items-center gap-1"
-                    aria-label={`${t.best}: ${best} ${t.points}`}
+                    aria-label={`${t.best}: ${best} ${t.points}${levelLabel ? `, ${t.numberLevel}: ${levelLabel}` : ''}`}
                   >
-                    <Trophy size={13} className="text-time-ink" />
+                    <Trophy
+                      size={game.code === 'number-iq' ? 17 : 13}
+                      data-testid={
+                        game.code === 'number-iq' ? 'number-trophy' : undefined
+                      }
+                      className={
+                        game.code === 'number-iq' && numberBestLevel
+                          ? trophyColor[numberBestLevel]
+                          : 'text-time-ink'
+                      }
+                    />
                     {best} {t.points}
+                    {levelLabel && <span>· {levelLabel}</span>}
                   </span>
                   <span
                     className="inline-flex items-center gap-1"

@@ -4,10 +4,10 @@ import type {
   DemoQuestion,
   Locale,
   Localized,
+  NumberDifficulty,
+  NumberLevel,
 } from '@/shared/types/game.types';
 
-export type NumberDifficulty = 'easy' | 'medium' | 'hard';
-export type NumberLevel = NumberDifficulty | 'mixed';
 type Family = keyof typeof numberRuleCopy.en;
 
 export interface NumberQuestion extends DemoQuestion {

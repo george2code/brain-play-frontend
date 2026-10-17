@@ -16,6 +16,7 @@ import {
   combinedGameStats,
   dailyGame,
   gameStats,
+  numberTrophy,
   parseProfile,
   progressStats,
   utcDay,
@@ -185,6 +186,119 @@ test('ten-question Number IQ results persist without discarding older three-ques
   assert.equal(gameStats(saved, 'number-iq').played, 2);
   assert.equal(gameStats(saved, 'number-iq').total, 13);
   assert.equal(saved.totals?.['number-iq:1'].bestScore, 300);
+});
+
+test('Number IQ trophy follows the highest score and uses Mixed for equal scores', () => {
+  let profile = EMPTY_PROFILE;
+  for (const [level, score] of [
+    ['easy', 100],
+    ['medium', 400],
+    ['hard', 300],
+    ['mixed', 100],
+  ] as const) {
+    profile = addAttempt(
+      profile,
+      attempt({
+        id: level,
+        total: 10,
+        correct: score / 100,
+        score,
+        rulesVersion: 2,
+        numberLevel: level,
+      }),
+    );
+  }
+  assert.deepEqual(numberTrophy(profile), { level: 'medium', score: 400 });
+  profile = addAttempt(
+    profile,
+    attempt({
+      id: 'hard-tie',
+      total: 10,
+      correct: 4,
+      score: 400,
+      rulesVersion: 2,
+      numberLevel: 'hard',
+    }),
+  );
+  assert.deepEqual(numberTrophy(profile), { level: 'hard', score: 400 });
+  profile = addAttempt(
+    profile,
+    attempt({
+      id: 'mixed-tie',
+      total: 10,
+      correct: 4,
+      score: 400,
+      rulesVersion: 2,
+      numberLevel: 'mixed',
+    }),
+  );
+  assert.deepEqual(numberTrophy(parseProfile(JSON.stringify(profile))), {
+    level: 'mixed',
+    score: 400,
+  });
+  profile = addAttempt(
+    profile,
+    attempt({
+      id: 'hard-perfect',
+      total: 10,
+      correct: 10,
+      score: 1000,
+      rulesVersion: 2,
+      numberLevel: 'hard',
+    }),
+  );
+  profile = addAttempt(
+    profile,
+    attempt({
+      id: 'mixed-perfect',
+      total: 10,
+      correct: 10,
+      score: 1000,
+      rulesVersion: 2,
+      numberLevel: 'mixed',
+    }),
+  );
+  assert.deepEqual(numberTrophy(profile), { level: 'mixed', score: 1000 });
+});
+
+test('Number IQ trophy survives local history cap and upgrades older results as Mixed', () => {
+  let profile = addAttempt(
+    EMPTY_PROFILE,
+    attempt({
+      id: 'best',
+      total: 10,
+      correct: 9,
+      score: 900,
+      rulesVersion: 2,
+      numberLevel: 'medium',
+    }),
+  );
+  for (let index = 0; index < 105; index++)
+    profile = addAttempt(
+      profile,
+      attempt({
+        id: `later-${index}`,
+        total: 10,
+        correct: 0,
+        score: 0,
+        rulesVersion: 2,
+        numberLevel: 'easy',
+      }),
+    );
+  const restored = parseProfile(JSON.stringify(profile));
+  assert.equal(restored.attempts.length, 100);
+  assert.deepEqual(numberTrophy(restored), { level: 'medium', score: 900 });
+  const legacy = parseProfile(
+    JSON.stringify({
+      version: 1,
+      nickname: '',
+      attempts: [],
+      totals: {
+        'number-iq:2': { played: 1, correct: 6, total: 10, bestScore: 600 },
+      },
+    }),
+  );
+  assert.deepEqual(numberTrophy(legacy), { level: 'mixed', score: 600 });
 });
 
 test('Flag Master card counts completed local and verified server rounds together', () => {

@@ -7,6 +7,8 @@ export const GAME_CODES = [
 export type GameCode = (typeof GAME_CODES)[number];
 export type Locale = 'en' | 'uk' | 'ru';
 export type Localized = Record<Locale, string>;
+export type NumberDifficulty = 'easy' | 'medium' | 'hard';
+export type NumberLevel = NumberDifficulty | 'mixed';
 export interface GameDefinition {
   code: GameCode;
   title: string;
@@ -35,6 +37,7 @@ export interface DemoAttempt {
   total: number;
   completedAt: string;
   rulesVersion?: number;
+  numberLevel?: NumberLevel;
 }
 export interface DemoGameStats {
   played: number;
@@ -47,4 +50,5 @@ export interface DemoProfile {
   nickname: string;
   attempts: DemoAttempt[];
   totals?: Record<string, DemoGameStats>;
+  numberBestByLevel?: Partial<Record<NumberLevel, number>>;
 }

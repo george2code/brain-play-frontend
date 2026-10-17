@@ -14,7 +14,7 @@ import { useFlagProgress } from '@/hooks/useFlagProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
-import { combinedGameStats } from '@/utils/progress.utils';
+import { combinedGameStats, numberTrophy } from '@/utils/progress.utils';
 
 export default function Home() {
   const { t } = useLocale();
@@ -75,6 +75,11 @@ export default function Home() {
                   best={summary.played ? summary.bestScore : undefined}
                   played={summary.played}
                   accuracy={accuracy}
+                  numberBestLevel={
+                    game.code === 'number-iq'
+                      ? numberTrophy(profile)?.level
+                      : undefined
+                  }
                 />
               );
             })}

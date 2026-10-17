@@ -27,6 +27,10 @@
   --flag: #e5edf8;
   --flag-ink: #527eb2;
   --peach: #e0a37f;
+  --trophy-gold: #ad7625;
+  --trophy-silver: #687b88;
+  --trophy-bronze: #ad6947;
+  --trophy-easy: #2c8062;
   --hero: #edf2e7;
   --shadow-card: 0 5px 20px -10px #20383212;
 }
@@ -60,6 +64,10 @@
   --color-flag: var(--flag);
   --color-flag-ink: var(--flag-ink);
   --color-peach: var(--peach);
+  --color-trophy-gold: var(--trophy-gold);
+  --color-trophy-silver: var(--trophy-silver);
+  --color-trophy-bronze: var(--trophy-bronze);
+  --color-trophy-easy: var(--trophy-easy);
   --color-hero: var(--hero);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);

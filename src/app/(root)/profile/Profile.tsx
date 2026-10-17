@@ -34,7 +34,11 @@ import { useLocale } from '@/i18n/LocaleProvider';
 
 import type { DemoAttempt } from '@/shared/types/game.types';
 
-import { combinedGameStats, progressStats } from '@/utils/progress.utils';
+import {
+  combinedGameStats,
+  numberTrophy,
+  progressStats,
+} from '@/utils/progress.utils';
 
 export default function Profile() {
   const { t, locale } = useLocale();
@@ -138,6 +142,11 @@ export default function Profile() {
                     best={summary.played ? summary.bestScore : undefined}
                     played={summary.played}
                     accuracy={accuracy}
+                    numberBestLevel={
+                      game.code === 'number-iq'
+                        ? numberTrophy(profile)?.level
+                        : undefined
+                    }
                   />
                   <div className="px-2 pt-3">
                     <div className="mb-2 flex justify-between text-[11px] text-muted-foreground">

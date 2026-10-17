@@ -30,10 +30,7 @@ import { cn } from '@/lib/utils';
 
 import { DEMO_QUESTIONS } from '@/services/demo/demo.questions';
 import { createFlagQuestions } from '@/services/demo/flags/flag-questions';
-import {
-  type NumberLevel,
-  createNumberQuestions,
-} from '@/services/demo/number-questions';
+import { createNumberQuestions } from '@/services/demo/number-questions';
 import {
   completeFlagRound,
   serverRoundToQuestions,
@@ -44,6 +41,7 @@ import type {
   DemoAttempt,
   DemoQuestion,
   GameDefinition,
+  NumberLevel,
 } from '@/shared/types/game.types';
 
 export function GameSession({
@@ -176,6 +174,9 @@ export function GameSession({
         completedAt: verifiedResult?.completedAt ?? new Date().toISOString(),
         ...(game.code === 'flag-master' || game.code === 'number-iq'
           ? { rulesVersion: 2 }
+          : {}),
+        ...(game.code === 'number-iq'
+          ? { numberLevel: dailyDate ? 'mixed' : numberLevel }
           : {}),
       };
       if (!verifiedResult) complete(attempt);

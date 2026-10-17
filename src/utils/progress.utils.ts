@@ -5,7 +5,22 @@ import type {
   DemoGameStats,
   DemoProfile,
   GameCode,
+  NumberLevel,
 } from '@/shared/types/game.types';
+
+const TROPHY_ORDER: NumberLevel[] = ['mixed', 'hard', 'medium', 'easy'];
+const isNumberLevel = (value: unknown): value is NumberLevel =>
+  TROPHY_ORDER.some((level) => level === value);
+
+function legacyNumberBest(
+  totals?: Record<string, DemoGameStats>,
+): NonNullable<DemoProfile['numberBestByLevel']> {
+  const score = Math.max(
+    totals?.['number-iq:1']?.bestScore ?? -1,
+    totals?.['number-iq:2']?.bestScore ?? -1,
+  );
+  return score >= 0 ? { mixed: score } : {};
+}
 
 export const EMPTY_PROFILE: DemoProfile = {
   version: 1,
@@ -50,6 +65,20 @@ export function gameStats(profile: DemoProfile, game: GameCode): DemoGameStats {
         : summary,
     { played: 0, correct: 0, total: 0, bestScore: 0 },
   );
+}
+
+export function numberTrophy(profile: DemoProfile): {
+  level: NumberLevel;
+  score: number;
+} | null {
+  const bests = profile.numberBestByLevel || legacyNumberBest(profile.totals);
+  let winner: { level: NumberLevel; score: number } | null = null;
+  for (const level of TROPHY_ORDER) {
+    const score = bests[level];
+    if (score !== undefined && (!winner || score > winner.score))
+      winner = { level, score };
+  }
+  return winner;
 }
 
 export function combinedGameStats(
@@ -107,6 +136,8 @@ export function parseProfile(raw: string | null): DemoProfile {
           a.score === a.correct * 100 &&
           typeof a.completedAt === 'string' &&
           Number.isFinite(Date.parse(a.completedAt)) &&
+          (a.numberLevel === undefined ||
+            (a.game === 'number-iq' && isNumberLevel(a.numberLevel))) &&
           (a.mode !== 'daily' ||
             (typeof a.dailyDate === 'string' &&
               /^\d{4}-\d{2}-\d{2}$/.test(a.dailyDate) &&
@@ -142,11 +173,31 @@ export function parseProfile(raw: string | null): DemoProfile {
     } else {
       for (const attempt of attempts) totals = addToTotals(totals, attempt);
     }
+    const numberBestByLevel: NonNullable<DemoProfile['numberBestByLevel']> = {};
+    if (
+      value.numberBestByLevel &&
+      typeof value.numberBestByLevel === 'object' &&
+      !Array.isArray(value.numberBestByLevel)
+    ) {
+      for (const level of TROPHY_ORDER) {
+        const score = value.numberBestByLevel[level];
+        if (
+          Number.isInteger(score) &&
+          score >= 0 &&
+          score <= 1000 &&
+          score % 100 === 0
+        )
+          numberBestByLevel[level] = score;
+      }
+    }
+    if (Object.keys(numberBestByLevel).length === 0)
+      Object.assign(numberBestByLevel, legacyNumberBest(totals));
     return {
       version: 1,
       nickname: value.nickname.trim().slice(0, 24),
       attempts,
       totals,
+      numberBestByLevel,
     };
   } catch {
     return EMPTY_PROFILE;
@@ -167,10 +218,21 @@ export function addAttempt(
     )
   )
     return profile;
+  const numberBestByLevel =
+    profile.numberBestByLevel || legacyNumberBest(profile.totals);
+  const level = attempt.numberLevel || 'mixed';
   return {
     ...profile,
     attempts: [attempt, ...profile.attempts].slice(0, 100),
     totals: addToTotals(profile.totals || {}, attempt),
+    ...(attempt.game === 'number-iq'
+      ? {
+          numberBestByLevel: {
+            ...numberBestByLevel,
+            [level]: Math.max(numberBestByLevel[level] ?? -1, attempt.score),
+          },
+        }
+      : {}),
   };
 }
 

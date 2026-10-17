@@ -185,6 +185,109 @@ test('Number IQ shows the answer and worked solution in the current question', a
     path: `test-results/number-solution-${testInfo.project.name}.png`,
     fullPage: true,
   });
+  await page.getByRole('button', { name: 'Следующий вопрос' }).click();
+  for (let round = 1; round < 10; round++) {
+    await page.getByRole('button', { name: /^A / }).click();
+    await page
+      .getByRole('button', {
+        name: round === 9 ? 'Мой результат' : 'Следующий вопрос',
+      })
+      .click();
+  }
+  const savedLevel = await page.evaluate(
+    () =>
+      JSON.parse(localStorage.getItem('brainplay:demo-profile:v1')!).attempts[0]
+        .numberLevel,
+  );
+  expect(savedLevel).toBe('hard');
+  await page.goto('/');
+  await expect(
+    page
+      .getByRole('link', { name: 'Играть — Number IQ' })
+      .getByTestId('number-trophy'),
+  ).toHaveClass(/text-trophy-silver/);
+});
+
+test('Number IQ card shows the highest scoring trophy and breaks ties toward gold', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/');
+  const saveProfile = async (bests: Record<string, number>) => {
+    await page.evaluate((levels) => {
+      const top = Math.max(...Object.values(levels));
+      localStorage.setItem(
+        'brainplay:demo-profile:v1',
+        JSON.stringify({
+          version: 1,
+          nickname: '',
+          attempts: [
+            {
+              id: 'number-card-test',
+              game: 'number-iq',
+              mode: 'practice',
+              correct: top / 100,
+              total: 10,
+              score: top,
+              completedAt: '2026-10-17T10:00:00.000Z',
+              rulesVersion: 2,
+              numberLevel: Object.keys(levels).find(
+                (level) => levels[level] === top,
+              ),
+            },
+          ],
+          totals: {
+            'number-iq:2': {
+              played: 1,
+              correct: top / 100,
+              total: 10,
+              bestScore: top,
+            },
+          },
+          numberBestByLevel: levels,
+        }),
+      );
+    }, bests);
+    await page.reload();
+  };
+  const card = page.getByRole('link', { name: 'Let’s play — Number IQ' });
+  await saveProfile({ easy: 200 });
+  await expect(card.getByTestId('number-trophy')).toHaveClass(
+    /text-trophy-easy/,
+  );
+  await saveProfile({ mixed: 100, medium: 400 });
+  await expect(card.getByTestId('number-trophy')).toHaveClass(
+    /text-trophy-bronze/,
+  );
+  await expect(card.getByText('· Medium')).toBeVisible();
+  await card.screenshot({
+    path: `test-results/number-trophy-bronze-${testInfo.project.name}.png`,
+  });
+  await saveProfile({ mixed: 900, hard: 1000 });
+  await expect(card.getByTestId('number-trophy')).toHaveClass(
+    /text-trophy-silver/,
+  );
+  await saveProfile({ mixed: 1000, hard: 1000 });
+  await expect(card.getByTestId('number-trophy')).toHaveClass(
+    /text-trophy-gold/,
+  );
+  await expect(card.getByText('· Mixed')).toBeVisible();
+  await card.screenshot({
+    path: `test-results/number-trophy-gold-${testInfo.project.name}.png`,
+  });
+  await page.screenshot({
+    path: `test-results/number-trophy-home-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+  await page.goto('/profile');
+  await expect(
+    page
+      .getByRole('link', { name: 'Let’s play — Number IQ' })
+      .getByTestId('number-trophy'),
+  ).toHaveClass(/text-trophy-gold/);
+  await page.screenshot({
+    path: `test-results/number-trophy-profile-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
 });
 
 test('daily is recorded once, unknown route returns 404', async ({ page }) => {
