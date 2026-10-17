@@ -94,10 +94,8 @@ test('daily pick is deterministic and rotates through all four games', () => {
   assert.equal(codes.size, 4);
   assert.equal(dailyGame('2026-10-15').code, dailyGame('2026-10-15').code);
 });
-test('Geo Challenge and Time Traveler have three fully translated valid questions', () => {
-  for (const game of GAMES.filter(
-    (game) => game.code !== 'flag-master' && game.code !== 'number-iq',
-  )) {
+test('Time Traveler has three fully translated valid questions', () => {
+  for (const game of GAMES.filter((game) => game.code === 'time-traveler')) {
     assert.equal(DEMO_QUESTIONS[game.code].length, 3);
     for (const question of DEMO_QUESTIONS[game.code]) {
       assert.ok(

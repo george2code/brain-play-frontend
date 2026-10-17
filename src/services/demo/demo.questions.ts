@@ -10,54 +10,7 @@ const l = (en: string, uk: string = en, ru: string = en): Localized => ({
   ru,
 });
 export const DEMO_QUESTIONS: Record<GameCode, DemoQuestion[]> = {
-  'geo-challenge': [
-    {
-      id: 'geo-1',
-      prompt: l(
-        'Which country is home to Kyoto?',
-        'У якій країні розташоване Кіото?',
-        'В какой стране находится Киото?',
-      ),
-      options: [
-        l('Japan', 'Японія', 'Япония'),
-        l('South Korea', 'Південна Корея', 'Южная Корея'),
-        l('China', 'Китай', 'Китай'),
-        l('Thailand', 'Таїланд', 'Таиланд'),
-      ],
-      answer: 0,
-      visual: 'geo',
-    },
-    {
-      id: 'geo-2',
-      prompt: l(
-        'On which continent is the Sahara?',
-        'На якому континенті розташована Сахара?',
-        'На каком континенте находится Сахара?',
-      ),
-      options: [
-        l('Asia', 'Азія', 'Азия'),
-        l('Africa', 'Африка', 'Африка'),
-        l('Australia', 'Австралія', 'Австралия'),
-        l('South America', 'Південна Америка', 'Южная Америка'),
-      ],
-      answer: 1,
-    },
-    {
-      id: 'geo-3',
-      prompt: l(
-        'Which ocean lies between Europe and North America?',
-        'Який океан між Європою та Північною Америкою?',
-        'Какой океан между Европой и Северной Америкой?',
-      ),
-      options: [
-        l('Pacific', 'Тихий', 'Тихий'),
-        l('Indian', 'Індійський', 'Индийский'),
-        l('Atlantic', 'Атлантичний', 'Атлантический'),
-        l('Southern', 'Південний', 'Южный'),
-      ],
-      answer: 2,
-    },
-  ],
+  'geo-challenge': [],
   'number-iq': [],
   'time-traveler': [
     {

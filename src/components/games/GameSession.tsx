@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Trophy,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 
@@ -41,8 +42,13 @@ import type {
   DemoAttempt,
   DemoQuestion,
   GameDefinition,
+  GeoQuestion,
   NumberLevel,
 } from '@/shared/types/game.types';
+
+const GeoMap = dynamic(() =>
+  import('@/components/games/GeoMap').then((module) => module.GeoMap),
+);
 
 export function GameSession({
   game,
@@ -61,6 +67,7 @@ export function GameSession({
   const [result, setResult] = useState<DemoAttempt | null>(null);
   const [flagQuestions, setFlagQuestions] = useState<DemoQuestion[]>([]);
   const [numberQuestions, setNumberQuestions] = useState<DemoQuestion[]>([]);
+  const [geoQuestions, setGeoQuestions] = useState<GeoQuestion[]>([]);
   const [numberLevel, setNumberLevel] = useState<NumberLevel>('mixed');
   const [flagStorage, setFlagStorage] = useState<'cloud' | 'demo'>('demo');
   const [starting, setStarting] = useState(false);
@@ -74,8 +81,12 @@ export function GameSession({
       ? flagQuestions
       : game.code === 'number-iq'
         ? numberQuestions
-        : DEMO_QUESTIONS[game.code];
+        : game.code === 'geo-challenge'
+          ? geoQuestions
+          : DEMO_QUESTIONS[game.code];
   const question = questions[index];
+  const geoQuestion =
+    game.code === 'geo-challenge' ? (question as GeoQuestion) : null;
   const localDailyResult = dailyDate
     ? profile.attempts.find(
         (a) => a.mode === 'daily' && a.dailyDate === dailyDate,
@@ -127,6 +138,11 @@ export function GameSession({
       setNumberQuestions(
         createNumberQuestions(dailyDate ? 'mixed' : numberLevel, dailyDate),
       );
+    if (game.code === 'geo-challenge') {
+      const { createGeoQuestions } =
+        await import('@/services/demo/geo-questions');
+      setGeoQuestions(createGeoQuestions(dailyDate));
+    }
     sessionId.current = nextId;
     answers.current = [];
     saved.current = false;
@@ -172,7 +188,9 @@ export function GameSession({
         total: verifiedResult?.totalRounds ?? questions.length,
         score: verifiedResult?.score ?? nextCorrect * 100,
         completedAt: verifiedResult?.completedAt ?? new Date().toISOString(),
-        ...(game.code === 'flag-master' || game.code === 'number-iq'
+        ...(game.code === 'flag-master' ||
+        game.code === 'number-iq' ||
+        game.code === 'geo-challenge'
           ? { rulesVersion: 2 }
           : {}),
         ...(game.code === 'number-iq'
@@ -208,11 +226,15 @@ export function GameSession({
                   phase === 'intro' &&
                   !isCompletedDaily
                 ? t.numberRoundSize
-                : isCloudFlagResult
-                  ? phase === 'playing'
-                    ? t.flagCloudRound
-                    : t.flagSaved
-                  : t.demoNotice}
+                : game.code === 'geo-challenge' &&
+                    phase === 'intro' &&
+                    !isCompletedDaily
+                  ? t.geoRoundSize
+                  : isCloudFlagResult
+                    ? phase === 'playing'
+                      ? t.flagCloudRound
+                      : t.flagSaved
+                    : t.demoNotice}
           </span>
         </div>
         {phase === 'intro' && !isCompletedDaily && (
@@ -230,14 +252,18 @@ export function GameSession({
                   ? t.flagGameIntro
                   : game.code === 'number-iq'
                     ? t.numberIntro
-                    : t.gameIntro}
+                    : game.code === 'geo-challenge'
+                      ? t.geoIntro
+                      : t.gameIntro}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 {game.code === 'flag-master'
                   ? t.flagRules
                   : game.code === 'number-iq'
                     ? t.numberRules
-                    : t.demoRules}
+                    : game.code === 'geo-challenge'
+                      ? t.geoRules
+                      : t.demoRules}
               </p>
               {game.code === 'number-iq' && !dailyDate && (
                 <div className="mt-6">
@@ -306,7 +332,18 @@ export function GameSession({
               <h2 className="text-2xl leading-snug font-semibold tracking-tight">
                 {question.prompt[locale]}
               </h2>
-              <QuestionVisual visual={question.visual} />
+              {geoQuestion ? (
+                <GeoMap
+                  key={geoQuestion.id}
+                  region={geoQuestion.mapRegion}
+                  viewport={geoQuestion.viewport}
+                  selected={selected}
+                  correct={geoQuestion.answer}
+                  onSelect={setSelected}
+                />
+              ) : (
+                <QuestionVisual visual={question.visual} />
+              )}
               {question.factBefore && (
                 <div className="mt-4 rounded-2xl bg-flag/70 px-5 py-4 text-sm leading-relaxed text-foreground">
                   <p>{question.factBefore[locale]}</p>
@@ -328,7 +365,7 @@ export function GameSession({
                 </div>
               )}
             </div>
-            {selected === null && (
+            {selected === null && !geoQuestion && (
               <p className="mt-3 text-sm text-muted-foreground">
                 {t.roundsHint}
               </p>
@@ -338,34 +375,39 @@ export function GameSession({
                 {t.flagOfflineNotice}
               </p>
             )}
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {question.options.map((option, answer) => (
-                <Button
-                  key={`${question.id}-${answer}`}
-                  disabled={selected !== null}
-                  onClick={() => setSelected(answer)}
-                  variant="outline"
-                  className={cn(
-                    'h-auto min-h-14 justify-start gap-3 rounded-xl p-4 text-left whitespace-normal disabled:opacity-100',
-                    selected !== null &&
-                      answer === question.answer &&
-                      'border-primary bg-accent text-primary',
-                    selected === answer &&
-                      answer !== question.answer &&
-                      'border-destructive bg-destructive/5',
-                  )}
-                >
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs">
-                    {String.fromCharCode(65 + answer)}
-                  </span>
-                  <span className="flex-1">{option[locale]}</span>
-                  {selected !== null && answer === question.answer ? (
-                    <Check size={16} />
-                  ) : null}
-                </Button>
-              ))}
-            </div>
-            <div className="mt-7 min-h-24" aria-live="polite">
+            {!geoQuestion && (
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {question.options.map((option, answer) => (
+                  <Button
+                    key={`${question.id}-${answer}`}
+                    disabled={selected !== null}
+                    onClick={() => setSelected(answer)}
+                    variant="outline"
+                    className={cn(
+                      'h-auto min-h-14 justify-start gap-3 rounded-xl p-4 text-left whitespace-normal disabled:opacity-100',
+                      selected !== null &&
+                        answer === question.answer &&
+                        'border-primary bg-accent text-primary',
+                      selected === answer &&
+                        answer !== question.answer &&
+                        'border-destructive bg-destructive/5',
+                    )}
+                  >
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs">
+                      {String.fromCharCode(65 + answer)}
+                    </span>
+                    <span className="flex-1">{option[locale]}</span>
+                    {selected !== null && answer === question.answer ? (
+                      <Check size={16} />
+                    ) : null}
+                  </Button>
+                ))}
+              </div>
+            )}
+            <div
+              className={cn('mt-7', !geoQuestion && 'min-h-24')}
+              aria-live="polite"
+            >
               {selected !== null && (
                 <>
                   <p
@@ -376,13 +418,25 @@ export function GameSession({
                         : 'text-time-ink',
                     )}
                   >
-                    {selected === question.answer ? t.correct : t.incorrect}
+                    {selected === question.answer
+                      ? t.correct
+                      : geoQuestion
+                        ? t.geoIncorrect
+                        : t.incorrect}
                   </p>
                   {selected !== question.answer && (
-                    <p className="mb-4 text-sm text-muted-foreground">
-                      {t.correctAnswer}{' '}
-                      {question.options[question.answer][locale]}
-                    </p>
+                    <div className="mb-4 space-y-1 text-sm text-muted-foreground">
+                      {geoQuestion && (
+                        <p>
+                          {t.geoYouSelected}{' '}
+                          {question.options[selected][locale]}
+                        </p>
+                      )}
+                      <p>
+                        {t.correctAnswer}{' '}
+                        {question.options[question.answer][locale]}
+                      </p>
+                    </div>
                   )}
                   {question.explanation && (
                     <div className="mb-4 rounded-2xl bg-number/60 px-5 py-4 text-left text-number-ink">

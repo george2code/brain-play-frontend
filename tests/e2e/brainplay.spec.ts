@@ -111,6 +111,192 @@ test('catalog, round, profile persistence, rename and reset', async ({
   expect(errors).toEqual([]);
 });
 
+test('Geo Challenge selects a map area and reveals the correct location', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0.5;
+  });
+  await page.goto('/games/geo-challenge');
+  await expect(page.getByText('10 map questions per round')).toBeVisible();
+  await page.getByRole('button', { name: 'Start demo round' }).click();
+  const map = page.locator('svg[aria-label^="Interactive map"]');
+  const paths = map.locator('path[data-area-id]');
+  await expect(map).toBeVisible();
+  expect(await paths.count()).toBeGreaterThan(2);
+  await expect(page.getByRole('button', { name: /^A / })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Zoom in on map' }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Zoom out of map' }),
+  ).toHaveCount(0);
+  await page.screenshot({
+    path: `test-results/geo-map-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+  const targetPoolIds = new Set([
+    '288',
+    '716',
+    '404',
+    '504',
+    '392',
+    '356',
+    '704',
+    '764',
+    '276',
+    '380',
+    '724',
+    '804',
+    '124',
+    '484',
+    '076',
+    '032',
+    '152',
+    '036',
+    '554',
+    '598',
+    '48',
+    '06',
+    '04',
+    '12',
+  ]);
+  await map.scrollIntoViewIfNeeded();
+  const wrongPoint = await paths.evaluateAll(
+    (nodes, targetIds) => {
+      const targets = new Set(targetIds);
+      const candidates = nodes
+        .map((node) => ({
+          node: node as SVGGeometryElement,
+          id: node.getAttribute('data-area-id')!,
+          box: (node as SVGGeometryElement).getBBox(),
+        }))
+        .filter(
+          ({ id, box }) =>
+            !targets.has(id) && box.width > 20 && box.height > 20,
+        )
+        .sort(
+          (a, b) => b.box.width * b.box.height - a.box.width * a.box.height,
+        );
+      for (const { node, id, box } of candidates) {
+        for (let row = 1; row <= 5; row++) {
+          for (let column = 1; column <= 5; column++) {
+            const point = new DOMPoint(
+              box.x + (box.width * column) / 6,
+              box.y + (box.height * row) / 6,
+            );
+            if (!node.isPointInFill(point)) continue;
+            const screen = point.matrixTransform(node.getScreenCTM()!);
+            if (
+              screen.x > 12 &&
+              screen.x < innerWidth - 12 &&
+              screen.y > 12 &&
+              screen.y < innerHeight - 12
+            )
+              return { id, x: screen.x, y: screen.y };
+          }
+        }
+      }
+      return null;
+    },
+    [...targetPoolIds],
+  );
+  expect(wrongPoint).not.toBeNull();
+  const wrongArea = map.locator(`path[data-area-id="${wrongPoint!.id}"]`);
+  const wrongName = await wrongArea.getAttribute('aria-label');
+  if (testInfo.project.name === 'desktop') {
+    await page.mouse.move(wrongPoint!.x, wrongPoint!.y);
+    await expect(wrongArea).toHaveCSS('fill', 'rgb(96, 186, 134)');
+    await expect(page.getByText(wrongName!, { exact: true })).toHaveCount(0);
+    await page.mouse.click(wrongPoint!.x, wrongPoint!.y);
+  } else await page.touchscreen.tap(wrongPoint!.x, wrongPoint!.y);
+  await expect(wrongArea).toHaveAttribute('fill', '#f16c65');
+  await expect(map.locator('path[fill="#a4df65"]')).toHaveCount(1);
+  await expect(wrongArea).toHaveCSS('fill', 'rgb(241, 108, 101)');
+  await expect(map.locator('path[fill="#a4df65"]')).toHaveCSS(
+    'fill',
+    'rgb(164, 223, 101)',
+  );
+  await expect(
+    page.getByText('Not quite. The green area is the right place.'),
+  ).toBeVisible();
+  await page.screenshot({
+    path: `test-results/geo-feedback-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+  await page.getByRole('button', { name: 'Next question' }).click();
+  await expect(page.getByText('Round 2 of 10')).toBeVisible();
+  const seenRegions = new Set<string>();
+  for (let round = 2; round <= 10; round++) {
+    const currentMap = page.locator('svg[aria-label^="Interactive map"]');
+    const label = await currentMap.getAttribute('aria-label');
+    seenRegions.add(label!);
+    const viewBox = (await currentMap.getAttribute('viewBox'))!
+      .split(' ')
+      .map(Number);
+    if (label === 'Interactive map: South America')
+      expect(viewBox[3]).toBeGreaterThan(viewBox[2]);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    if (
+      ['Interactive map: South America', 'Interactive map: Europe'].includes(
+        label!,
+      )
+    ) {
+      await page.screenshot({
+        path: `test-results/geo-${label!.split(': ')[1].replaceAll(' ', '-').toLowerCase()}-${testInfo.project.name}.png`,
+        fullPage: true,
+      });
+    }
+    await currentMap.locator('path[data-area-id]').first().focus();
+    await page.keyboard.press('Enter');
+    await page
+      .getByRole('button', {
+        name: round === 10 ? 'See my result' : 'Next question',
+      })
+      .click();
+  }
+  expect(seenRegions.size).toBeGreaterThanOrEqual(6);
+  await expect(page.getByText('Correct answers')).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test('Geo Challenge frames an island target for direct tapping', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0.35;
+  });
+  await page.goto('/games/geo-challenge');
+  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Find Papua New Guinea on the map.' }),
+  ).toBeVisible();
+  const map = page.locator('svg[aria-label^="Interactive map"]');
+  const target = map.locator('path[data-area-id="598"]');
+  await expect(target).toBeVisible();
+  const width = await target.evaluate(
+    (node) => node.getBoundingClientRect().width,
+  );
+  expect(width).toBeGreaterThan(testInfo.project.name === 'mobile' ? 60 : 120);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `test-results/geo-papua-new-guinea-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+});
+
 test('languages, navigation and honest unavailable sign-in', async ({
   page,
 }, testInfo) => {

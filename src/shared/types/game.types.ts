@@ -27,6 +27,24 @@ export interface DemoQuestion {
   explanation?: Localized;
   source?: string;
 }
+export type GeoRegion =
+  | 'africa'
+  | 'asia'
+  | 'europe'
+  | 'north-america'
+  | 'south-america'
+  | 'oceania'
+  | 'usa';
+export interface GeoViewport {
+  bounds: readonly [west: number, south: number, east: number, north: number];
+  width: number;
+  height: number;
+}
+export interface GeoQuestion extends DemoQuestion {
+  mapRegion: GeoRegion;
+  viewport: GeoViewport;
+  targetId: string;
+}
 export interface DemoAttempt {
   id: string;
   game: GameCode;

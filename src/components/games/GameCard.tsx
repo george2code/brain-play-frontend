@@ -110,6 +110,8 @@ export function GameCard({
                 t.flagRoundSize
               ) : game.code === 'number-iq' ? (
                 t.numberRoundSize
+              ) : game.code === 'geo-challenge' ? (
+                t.geoRoundSize
               ) : (
                 t.quickRound
               )}
