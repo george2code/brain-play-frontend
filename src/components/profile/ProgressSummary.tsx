@@ -8,12 +8,41 @@ import { useDemoProfile } from '@/hooks/useDemoProfile';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
+import type {
+  ServerAttempt,
+  ServerFlagStats,
+} from '@/services/flag-master.service';
+
 import { progressStats } from '@/utils/progress.utils';
 
-export function ProgressSummary() {
+export function ProgressSummary({
+  flagStats,
+  flagHistory,
+}: {
+  flagStats: ServerFlagStats | null;
+  flagHistory: ServerAttempt[];
+}) {
   const { t } = useLocale();
-  const { profile, hasPlayed } = useDemoProfile();
-  const stats = progressStats(profile.attempts);
+  const { profile } = useDemoProfile();
+  const localTotals = Object.values(profile.totals || {});
+  const played =
+    localTotals.reduce((sum, item) => sum + item.played, 0) +
+    (flagStats?.played || 0);
+  const correct =
+    localTotals.reduce((sum, item) => sum + item.correct, 0) +
+    (flagStats?.correct || 0);
+  const total =
+    localTotals.reduce((sum, item) => sum + item.total, 0) +
+    (flagStats?.played || 0) * 10;
+  const streak = progressStats([
+    ...profile.attempts,
+    ...flagHistory.map((item) => ({
+      completedAt: item.completedAt,
+      correct: item.correctAnswers,
+      total: item.totalRounds,
+    })),
+  ]).streak;
+  const hasPlayed = played > 0;
   return (
     <section className="surface-card p-6">
       <span className="mb-4 flex size-10 items-center justify-center rounded-xl bg-secondary text-primary">
@@ -28,9 +57,13 @@ export function ProgressSummary() {
       {hasPlayed && (
         <div className="my-5 space-y-3">
           {[
-            { icon: Gamepad2, label: t.played, value: stats.played },
-            { icon: Target, label: t.accuracy, value: `${stats.accuracy}%` },
-            { icon: Flame, label: t.streak, value: stats.streak },
+            { icon: Gamepad2, label: t.played, value: played },
+            {
+              icon: Target,
+              label: t.accuracy,
+              value: `${total ? Math.round((correct / total) * 100) : 0}%`,
+            },
+            { icon: Flame, label: t.streak, value: streak },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="flex items-center gap-2 text-sm">
               <Icon size={15} className="text-muted-foreground" />

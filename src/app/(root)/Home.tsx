@@ -14,12 +14,12 @@ import { useFlagProgress } from '@/hooks/useFlagProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
-import { gameStats } from '@/utils/progress.utils';
+import { combinedGameStats } from '@/utils/progress.utils';
 
 export default function Home() {
   const { t } = useLocale();
   const { profile } = useDemoProfile();
-  const { stats: flagStats } = useFlagProgress();
+  const { stats: flagStats, history: flagHistory } = useFlagProgress();
   return (
     <div className="page-container py-7 sm:py-9">
       <section className="relative flex items-center justify-between gap-5 overflow-hidden rounded-3xl border border-border bg-hero px-6 py-9 sm:px-10 sm:py-10">
@@ -64,27 +64,16 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {GAMES.map((game) => {
-              const summary = gameStats(profile, game.code);
-              const played =
-                game.code === 'flag-master' && flagStats
-                  ? flagStats.played
-                  : summary.played;
-              const bestScore =
-                game.code === 'flag-master' && flagStats
-                  ? flagStats.bestScore
-                  : summary.bestScore;
-              const accuracy =
-                game.code === 'flag-master' && flagStats
-                  ? flagStats.accuracy
-                  : summary.total
-                    ? Math.round((summary.correct / summary.total) * 100)
-                    : 0;
+              const summary = combinedGameStats(profile, game.code, flagStats);
+              const accuracy = summary.total
+                ? Math.round((summary.correct / summary.total) * 100)
+                : 0;
               return (
                 <GameCard
                   key={game.code}
                   game={game}
-                  best={played ? bestScore : undefined}
-                  played={played}
+                  best={summary.played ? summary.bestScore : undefined}
+                  played={summary.played}
                   accuracy={accuracy}
                 />
               );
@@ -99,7 +88,7 @@ export default function Home() {
           <div className="hidden lg:block">
             <AdSlot format="rectangle" />
           </div>
-          <ProgressSummary />
+          <ProgressSummary flagStats={flagStats} flagHistory={flagHistory} />
         </aside>
       </div>
     </div>

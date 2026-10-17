@@ -5,10 +5,15 @@ import { GAMES } from '../src/constants/games.constants';
 import { DEMO_QUESTIONS } from '../src/services/demo/demo.questions';
 import { createFlagQuestions } from '../src/services/demo/flags/flag-questions';
 import flagCatalog from '../src/services/demo/flags/flags.json';
+import {
+  NUMBER_QUESTION_BANK,
+  createNumberQuestions,
+} from '../src/services/demo/number-questions';
 import type { DemoAttempt } from '../src/shared/types/game.types';
 import {
   EMPTY_PROFILE,
   addAttempt,
+  combinedGameStats,
   dailyGame,
   gameStats,
   parseProfile,
@@ -88,8 +93,10 @@ test('daily pick is deterministic and rotates through all four games', () => {
   assert.equal(codes.size, 4);
   assert.equal(dailyGame('2026-10-15').code, dailyGame('2026-10-15').code);
 });
-test('other demos have three fully translated valid questions', () => {
-  for (const game of GAMES.filter((game) => game.code !== 'flag-master')) {
+test('Geo Challenge and Time Traveler have three fully translated valid questions', () => {
+  for (const game of GAMES.filter(
+    (game) => game.code !== 'flag-master' && game.code !== 'number-iq',
+  )) {
     assert.equal(DEMO_QUESTIONS[game.code].length, 3);
     for (const question of DEMO_QUESTIONS[game.code]) {
       assert.ok(
@@ -101,6 +108,119 @@ test('other demos have three fully translated valid questions', () => {
       }
     }
   }
+});
+test('Number IQ has 300 distinct, explained puzzles across three difficulties', () => {
+  assert.equal(NUMBER_QUESTION_BANK.length, 300);
+  assert.equal(new Set(NUMBER_QUESTION_BANK.map((item) => item.id)).size, 300);
+  assert.equal(
+    new Set(NUMBER_QUESTION_BANK.map((item) => item.visual)).size,
+    300,
+  );
+  for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+    assert.equal(
+      NUMBER_QUESTION_BANK.filter((item) => item.difficulty === difficulty)
+        .length,
+      100,
+    );
+  }
+  const positions = new Set<string>();
+  for (const item of NUMBER_QUESTION_BANK) {
+    assert.equal(item.options.length, 4, item.id);
+    assert.equal(
+      new Set(item.options.map((option) => option.en)).size,
+      4,
+      item.id,
+    );
+    assert.equal(
+      Number(item.options[item.answer].en),
+      item.terms[item.missingIndex],
+      item.id,
+    );
+    assert.equal(item.visual?.split('?').length, 2, item.id);
+    positions.add(
+      item.missingIndex === 0
+        ? 'first'
+        : item.missingIndex === item.terms.length - 1
+          ? 'last'
+          : 'middle',
+    );
+    for (const locale of ['en', 'uk', 'ru'] as const) {
+      assert.ok(item.prompt[locale], item.id);
+      assert.ok(
+        item.explanation?.[locale].includes(
+          String(item.terms[item.missingIndex]),
+        ),
+        item.id,
+      );
+    }
+  }
+  assert.deepEqual([...positions].sort(), ['first', 'last', 'middle']);
+  for (const level of ['mixed', 'easy', 'medium', 'hard'] as const) {
+    const round = createNumberQuestions(level, '2026-10-17');
+    assert.equal(round.length, 10);
+    assert.equal(new Set(round.map((item) => item.id)).size, 10);
+    assert.deepEqual(createNumberQuestions(level, '2026-10-17'), round);
+    assert.ok(
+      new Set(round.map((item) => item.family)).size >=
+        (level === 'mixed' ? 10 : 4),
+    );
+    if (level !== 'mixed')
+      assert.ok(round.every((item) => item.difficulty === level));
+  }
+});
+test('ten-question Number IQ results persist without discarding older three-question rounds', () => {
+  const oldRound = attempt({ id: 'old', correct: 3, total: 3, score: 300 });
+  const newRound = attempt({
+    id: 'new',
+    correct: 10,
+    total: 10,
+    score: 1000,
+    rulesVersion: 2,
+  });
+  const saved = parseProfile(
+    JSON.stringify(addAttempt(addAttempt(EMPTY_PROFILE, oldRound), newRound)),
+  );
+  assert.equal(saved.attempts.length, 2);
+  assert.equal(gameStats(saved, 'number-iq').bestScore, 1000);
+  assert.equal(gameStats(saved, 'number-iq').played, 2);
+  assert.equal(gameStats(saved, 'number-iq').total, 13);
+  assert.equal(saved.totals?.['number-iq:1'].bestScore, 300);
+});
+
+test('Flag Master card counts completed local and verified server rounds together', () => {
+  const local = addAttempt(
+    addAttempt(
+      EMPTY_PROFILE,
+      attempt({
+        id: 'flag-old',
+        game: 'flag-master',
+        correct: 2,
+        total: 3,
+        score: 200,
+      }),
+    ),
+    attempt({
+      id: 'flag-demo',
+      game: 'flag-master',
+      correct: 6,
+      total: 10,
+      score: 600,
+      rulesVersion: 2,
+    }),
+  );
+  const restored = parseProfile(JSON.stringify(local));
+  assert.equal(gameStats(restored, 'flag-master').played, 2);
+  const summary = combinedGameStats(restored, 'flag-master', {
+    played: 4,
+    correct: 32,
+    bestScore: 900,
+  });
+  assert.deepEqual(summary, {
+    played: 6,
+    correct: 40,
+    total: 53,
+    bestScore: 900,
+  });
 });
 test('Flag Master has 195 translated flags and ten unique questions with four options', () => {
   assert.equal(flagCatalog.length, 195);

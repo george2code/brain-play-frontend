@@ -35,7 +35,10 @@ export function QuestionVisual({ visual }: { visual?: string }) {
   if (!visual || visual === 'geo') return null;
   if (!['japan', 'ukraine', 'france'].includes(visual))
     return (
-      <p className="my-8 rounded-2xl bg-number/60 px-4 py-8 text-center text-2xl font-semibold tracking-wider text-number-ink sm:text-4xl">
+      <p
+        data-testid="question-visual"
+        className="my-8 rounded-2xl bg-number/60 px-4 py-8 text-center text-2xl font-semibold tracking-wider text-number-ink sm:text-4xl"
+      >
         {visual}
       </p>
     );

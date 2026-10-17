@@ -58,41 +58,7 @@ export const DEMO_QUESTIONS: Record<GameCode, DemoQuestion[]> = {
       answer: 2,
     },
   ],
-  'number-iq': [
-    {
-      id: 'number-1',
-      prompt: l(
-        'What comes next?',
-        'Яке число наступне?',
-        'Какое число следующее?',
-      ),
-      visual: '2 · 4 · 8 · 16 · ?',
-      options: [l('20'), l('24'), l('32'), l('36')],
-      answer: 2,
-    },
-    {
-      id: 'number-2',
-      prompt: l(
-        'Find the missing number.',
-        'Знайди пропущене число.',
-        'Найди пропущенное число.',
-      ),
-      visual: '1 · 4 · 9 · ? · 25',
-      options: [l('12'), l('16'), l('18'), l('20')],
-      answer: 1,
-    },
-    {
-      id: 'number-3',
-      prompt: l(
-        'Can you spot the pattern?',
-        'Бачиш закономірність?',
-        'Видишь закономерность?',
-      ),
-      visual: '3 · 6 · 11 · 18 · ?',
-      options: [l('24'), l('25'), l('26'), l('27')],
-      answer: 3,
-    },
-  ],
+  'number-iq': [],
   'time-traveler': [
     {
       id: 'time-1',

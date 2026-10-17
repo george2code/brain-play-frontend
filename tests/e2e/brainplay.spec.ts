@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import flagCatalog from '../../src/services/demo/flags/flags.json';
+import { NUMBER_QUESTION_BANK } from '../../src/services/demo/number-questions';
 
 test('catalog, round, profile persistence, rename and reset', async ({
   page,
@@ -30,13 +31,29 @@ test('catalog, round, profile persistence, rename and reset', async ({
   await expect(
     page.getByRole('region', { name: 'Try something new' }),
   ).toHaveCount(0);
-  await page.getByRole('button', { name: 'C32', exact: true }).click();
-  await page.getByRole('button', { name: 'Next question' }).click();
-  await page.getByRole('button', { name: 'B16', exact: true }).click();
-  await page.getByRole('button', { name: 'Next question' }).click();
-  await page.getByRole('button', { name: 'D27', exact: true }).click();
-  await page.getByRole('button', { name: 'See my result' }).click();
-  await expect(page.getByText('300', { exact: true })).toBeVisible();
+  const seen = new Set<string>();
+  for (let round = 0; round < 10; round++) {
+    const visual = await page.getByTestId('question-visual').textContent();
+    const question = NUMBER_QUESTION_BANK.find(
+      (item) => item.visual === visual,
+    );
+    expect(question).toBeDefined();
+    seen.add(question!.id);
+    const choice =
+      String.fromCharCode(65 + question!.answer) +
+      ' ' +
+      question!.terms[question!.missingIndex];
+    await page.getByRole('button', { name: choice, exact: true }).click();
+    if (round === 0)
+      await expect(page.getByText(question!.explanation!.en)).toBeVisible();
+    await page
+      .getByRole('button', {
+        name: round === 9 ? 'See my result' : 'Next question',
+      })
+      .click();
+  }
+  expect(seen.size).toBe(10);
+  await expect(page.getByText('1000', { exact: true })).toBeVisible();
   const recommendations = page.getByRole('region', {
     name: 'Try something new',
   });
@@ -133,6 +150,43 @@ test('languages, navigation and honest unavailable sign-in', async ({
   ).toBeVisible();
 });
 
+test('Number IQ shows the answer and worked solution in the current question', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/games/number-iq');
+  await page.getByRole('button', { name: 'Challenge' }).click();
+  await page.getByRole('button', { name: 'Start demo round' }).click();
+  const visual = await page.getByTestId('question-visual').textContent();
+  const question = NUMBER_QUESTION_BANK.find((item) => item.visual === visual);
+  expect(question?.difficulty).toBe('hard');
+  const wrong = (question!.answer + 1) % 4;
+  await page
+    .getByRole('button', {
+      name: String.fromCharCode(65 + wrong) + ' ' + question!.options[wrong].en,
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByText(`Correct answer: ${question!.options[question!.answer].en}`),
+  ).toBeVisible();
+  await expect(page.getByText(question!.explanation!.en)).toBeVisible();
+  await page.getByRole('combobox', { name: 'Language' }).click();
+  await page.getByRole('option', { name: 'Русский' }).click();
+  await expect(page.getByText(question!.explanation!.ru)).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Следующий вопрос' }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `test-results/number-solution-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+});
+
 test('daily is recorded once, unknown route returns 404', async ({ page }) => {
   await page.route('http://localhost:5000/api/v1/**', (route) => route.abort());
   await page.goto('/daily');
@@ -146,7 +200,9 @@ test('daily is recorded once, unknown route returns 404', async ({ page }) => {
       name: isFlagDay ? 'Start flag round' : 'Start demo round',
     })
     .click();
-  const roundCount = isFlagDay ? 10 : 3;
+  const isNumberDay =
+    (await page.getByRole('heading', { name: 'Number IQ' }).count()) > 0;
+  const roundCount = isFlagDay || isNumberDay ? 10 : 3;
   for (let round = 0; round < roundCount; round++) {
     await page.getByRole('button', { name: /^A/ }).click();
     await page
@@ -237,4 +293,102 @@ test('Flag Master teaches after each answer and records ten rounds locally when 
       .getByRole('link', { name: 'Let’s play — Flag Master' })
       .getByLabel(/Games played: 1/),
   ).toBeVisible();
+});
+
+test('profile cards include older rounds and local Flag Master demos alongside saved rounds', async ({
+  page,
+}) => {
+  const cors = {
+    'access-control-allow-origin': 'http://localhost:3100',
+    'access-control-allow-credentials': 'true',
+  };
+  await page.route('**/flag-master/stats', (route) =>
+    route.fulfill({
+      json: {
+        played: 4,
+        correct: 32,
+        wrong: 8,
+        accuracy: 80,
+        bestScore: 900,
+        rulesVersion: 2,
+      },
+      headers: cors,
+    }),
+  );
+  await page.route('**/game-attempts/me**', (route) =>
+    route.fulfill({
+      json: {
+        items: Array.from({ length: 4 }, (_, index) => ({
+          id: `server-flag-${index}`,
+          score: 800,
+          correctAnswers: 8,
+          totalRounds: 10,
+          completedAt: `2026-10-${String(13 + index).padStart(2, '0')}T10:00:00.000Z`,
+          mode: {
+            code: 'classic',
+            rulesVersion: 2,
+            game: { code: 'flag-master' },
+          },
+        })),
+      },
+      headers: cors,
+    }),
+  );
+  await page.goto('/');
+  await page.evaluate(() => {
+    const rounds = [
+      ['local-flag-old', 'flag-master', 3, 2, 1],
+      ['local-flag-new', 'flag-master', 10, 6, 2],
+      ['local-number-old', 'number-iq', 3, 2, 1],
+      ['local-number-new', 'number-iq', 10, 6, 2],
+    ] as const;
+    localStorage.setItem(
+      'brainplay:demo-profile:v1',
+      JSON.stringify({
+        version: 1,
+        nickname: 'Player',
+        attempts: rounds.map(([id, game, total, correct, rulesVersion]) => ({
+          id,
+          game,
+          mode: 'practice',
+          total,
+          correct,
+          score: correct * 100,
+          rulesVersion,
+          completedAt: '2026-10-12T10:00:00.000Z',
+        })),
+        totals: {
+          'flag-master:1': { played: 1, correct: 2, total: 3, bestScore: 200 },
+          'flag-master:2': { played: 1, correct: 6, total: 10, bestScore: 600 },
+          'number-iq:1': { played: 1, correct: 2, total: 3, bestScore: 200 },
+          'number-iq:2': { played: 1, correct: 6, total: 10, bestScore: 600 },
+        },
+      }),
+    );
+  });
+  await page.goto('/profile');
+  await expect(
+    page
+      .getByRole('link', { name: 'Let’s play — Flag Master' })
+      .getByLabel('Games played: 6'),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole('link', { name: 'Let’s play — Number IQ' })
+      .getByLabel('Games played: 2'),
+  ).toBeVisible();
+  await expect(page.getByRole('row')).toHaveCount(9);
+  await page.goto('/');
+  await expect(
+    page
+      .getByRole('link', { name: 'Let’s play — Flag Master' })
+      .getByLabel('Games played: 6'),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator('aside')
+      .getByText('Games played')
+      .locator('..')
+      .locator('strong'),
+  ).toHaveText('8');
 });

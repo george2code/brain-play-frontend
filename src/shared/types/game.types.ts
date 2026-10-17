@@ -22,6 +22,7 @@ export interface DemoQuestion {
   visual?: string;
   factBefore?: Localized;
   factAfter?: Localized;
+  explanation?: Localized;
   source?: string;
 }
 export interface DemoAttempt {

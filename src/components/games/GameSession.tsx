@@ -31,6 +31,10 @@ import { cn } from '@/lib/utils';
 import { DEMO_QUESTIONS } from '@/services/demo/demo.questions';
 import { createFlagQuestions } from '@/services/demo/flags/flag-questions';
 import {
+  type NumberLevel,
+  createNumberQuestions,
+} from '@/services/demo/number-questions';
+import {
   completeFlagRound,
   serverRoundToQuestions,
   startFlagRound,
@@ -58,6 +62,8 @@ export function GameSession({
   const [correct, setCorrect] = useState(0);
   const [result, setResult] = useState<DemoAttempt | null>(null);
   const [flagQuestions, setFlagQuestions] = useState<DemoQuestion[]>([]);
+  const [numberQuestions, setNumberQuestions] = useState<DemoQuestion[]>([]);
+  const [numberLevel, setNumberLevel] = useState<NumberLevel>('mixed');
   const [flagStorage, setFlagStorage] = useState<'cloud' | 'demo'>('demo');
   const [starting, setStarting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -66,7 +72,11 @@ export function GameSession({
   const answers = useRef<number[]>([]);
   const saved = useRef(false);
   const questions =
-    game.code === 'flag-master' ? flagQuestions : DEMO_QUESTIONS[game.code];
+    game.code === 'flag-master'
+      ? flagQuestions
+      : game.code === 'number-iq'
+        ? numberQuestions
+        : DEMO_QUESTIONS[game.code];
   const question = questions[index];
   const localDailyResult = dailyDate
     ? profile.attempts.find(
@@ -115,6 +125,10 @@ export function GameSession({
         setFlagStorage('demo');
       }
     }
+    if (game.code === 'number-iq')
+      setNumberQuestions(
+        createNumberQuestions(dailyDate ? 'mixed' : numberLevel, dailyDate),
+      );
     sessionId.current = nextId;
     answers.current = [];
     saved.current = false;
@@ -160,7 +174,9 @@ export function GameSession({
         total: verifiedResult?.totalRounds ?? questions.length,
         score: verifiedResult?.score ?? nextCorrect * 100,
         completedAt: verifiedResult?.completedAt ?? new Date().toISOString(),
-        ...(game.code === 'flag-master' ? { rulesVersion: 2 } : {}),
+        ...(game.code === 'flag-master' || game.code === 'number-iq'
+          ? { rulesVersion: 2 }
+          : {}),
       };
       if (!verifiedResult) complete(attempt);
       setResult(attempt);
@@ -187,11 +203,15 @@ export function GameSession({
             phase === 'intro' &&
             !isCompletedDaily
               ? t.flagRoundSize
-              : isCloudFlagResult
-                ? phase === 'playing'
-                  ? t.flagCloudRound
-                  : t.flagSaved
-                : t.demoNotice}
+              : game.code === 'number-iq' &&
+                  phase === 'intro' &&
+                  !isCompletedDaily
+                ? t.numberRoundSize
+                : isCloudFlagResult
+                  ? phase === 'playing'
+                    ? t.flagCloudRound
+                    : t.flagSaved
+                  : t.demoNotice}
           </span>
         </div>
         {phase === 'intro' && !isCompletedDaily && (
@@ -205,11 +225,54 @@ export function GameSession({
                 {game.title}
               </h1>
               <p className="mt-4 leading-relaxed text-muted-foreground">
-                {game.code === 'flag-master' ? t.flagGameIntro : t.gameIntro}
+                {game.code === 'flag-master'
+                  ? t.flagGameIntro
+                  : game.code === 'number-iq'
+                    ? t.numberIntro
+                    : t.gameIntro}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {game.code === 'flag-master' ? t.flagRules : t.demoRules}
+                {game.code === 'flag-master'
+                  ? t.flagRules
+                  : game.code === 'number-iq'
+                    ? t.numberRules
+                    : t.demoRules}
               </p>
+              {game.code === 'number-iq' && !dailyDate && (
+                <div className="mt-6">
+                  <p className="mb-2 text-sm font-medium">{t.numberLevel}</p>
+                  <div
+                    className="flex flex-wrap gap-2"
+                    role="group"
+                    aria-label={t.numberLevel}
+                  >
+                    {(['mixed', 'easy', 'medium', 'hard'] as const).map(
+                      (level) => (
+                        <Button
+                          key={level}
+                          type="button"
+                          variant="outline"
+                          aria-pressed={numberLevel === level}
+                          onClick={() => setNumberLevel(level)}
+                          className={cn(
+                            'rounded-xl',
+                            numberLevel === level &&
+                              'border-primary bg-accent text-primary',
+                          )}
+                        >
+                          {level === 'mixed'
+                            ? t.numberMixed
+                            : level === 'easy'
+                              ? t.numberEasy
+                              : level === 'medium'
+                                ? t.numberMedium
+                                : t.numberHard}
+                        </Button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
               <Button
                 onClick={() => void start()}
                 disabled={starting}
@@ -319,6 +382,16 @@ export function GameSession({
                       {t.correctAnswer}{' '}
                       {question.options[question.answer][locale]}
                     </p>
+                  )}
+                  {question.explanation && (
+                    <div className="mb-4 rounded-2xl bg-number/60 px-5 py-4 text-left text-number-ink">
+                      <p className="mb-1 text-sm font-semibold">
+                        {t.numberSolution}
+                      </p>
+                      <p className="whitespace-pre-line text-sm leading-relaxed">
+                        {question.explanation[locale]}
+                      </p>
+                    </div>
                   )}
                   {saveError && (
                     <p className="mb-2 text-sm text-destructive">

@@ -14,7 +14,6 @@ export const EMPTY_PROFILE: DemoProfile = {
   totals: {},
 };
 const statsKey = (game: GameCode, version: number) => `${game}:${version}`;
-const currentVersion = (game: GameCode) => (game === 'flag-master' ? 2 : 1);
 
 function addToTotals(
   totals: Record<string, DemoGameStats>,
@@ -39,14 +38,37 @@ function addToTotals(
 }
 
 export function gameStats(profile: DemoProfile, game: GameCode): DemoGameStats {
-  return (
-    profile.totals?.[statsKey(game, currentVersion(game))] || {
-      played: 0,
-      correct: 0,
-      total: 0,
-      bestScore: 0,
-    }
+  return Object.entries(profile.totals || {}).reduce<DemoGameStats>(
+    (summary, [key, stats]) =>
+      key.startsWith(`${game}:`)
+        ? {
+            played: summary.played + stats.played,
+            correct: summary.correct + stats.correct,
+            total: summary.total + stats.total,
+            bestScore: Math.max(summary.bestScore, stats.bestScore),
+          }
+        : summary,
+    { played: 0, correct: 0, total: 0, bestScore: 0 },
   );
+}
+
+export function combinedGameStats(
+  profile: DemoProfile,
+  game: GameCode,
+  remoteFlagStats?: {
+    played: number;
+    correct: number;
+    bestScore: number;
+  } | null,
+): DemoGameStats {
+  const local = gameStats(profile, game);
+  if (game !== 'flag-master' || !remoteFlagStats) return local;
+  return {
+    played: local.played + remoteFlagStats.played,
+    correct: local.correct + remoteFlagStats.correct,
+    total: local.total + remoteFlagStats.played * 10,
+    bestScore: Math.max(local.bestScore, remoteFlagStats.bestScore),
+  };
 }
 export const utcDay = (date: Date = new Date()) =>
   date.toISOString().slice(0, 10);
@@ -75,7 +97,10 @@ export function parseProfile(raw: string | null): DemoProfile {
           ['practice', 'daily'].includes(a.mode) &&
           Number.isInteger(a.total) &&
           a.total ===
-            (a.game === 'flag-master' && a.rulesVersion === 2 ? 10 : 3) &&
+            ((a.game === 'flag-master' || a.game === 'number-iq') &&
+            a.rulesVersion === 2
+              ? 10
+              : 3) &&
           Number.isInteger(a.correct) &&
           a.correct >= 0 &&
           a.correct <= a.total &&
@@ -97,7 +122,7 @@ export function parseProfile(raw: string | null): DemoProfile {
       for (const [key, stat] of Object.entries(value.totals)) {
         const item = stat as DemoGameStats;
         if (
-          /^(geo-challenge|number-iq|time-traveler):1$|^flag-master:[12]$/.test(
+          /^(geo-challenge|number-iq|time-traveler|flag-master):1$|^(flag-master|number-iq):2$/.test(
             key,
           ) &&
           item &&
@@ -109,7 +134,8 @@ export function parseProfile(raw: string | null): DemoProfile {
           item.total >= item.correct &&
           Number.isInteger(item.bestScore) &&
           item.bestScore >= 0 &&
-          item.bestScore <= (key === 'flag-master:2' ? 1000 : 300)
+          item.bestScore <=
+            (key === 'flag-master:2' || key === 'number-iq:2' ? 1000 : 300)
         )
           totals[key] = item;
       }
@@ -148,7 +174,10 @@ export function addAttempt(
   };
 }
 
-export function progressStats(attempts: DemoAttempt[], today = utcDay()) {
+export function progressStats(
+  attempts: Pick<DemoAttempt, 'completedAt' | 'correct' | 'total'>[],
+  today = utcDay(),
+) {
   const correct = attempts.reduce((sum, a) => sum + a.correct, 0);
   const total = attempts.reduce((sum, a) => sum + a.total, 0);
   const days = new Set(attempts.map((a) => utcDay(new Date(a.completedAt))));

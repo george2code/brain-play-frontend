@@ -37,7 +37,11 @@ export function GameCard({
             </span>
             <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <Clock3 size={12} />
-              {game.code === 'flag-master' ? t.flagMinutes : t.minutes}
+              {game.code === 'flag-master'
+                ? t.flagMinutes
+                : game.code === 'number-iq'
+                  ? t.numberMinutes
+                  : t.minutes}
             </span>
           </div>
           <h3 className="mb-2 text-[23px] font-semibold tracking-tight">
@@ -74,6 +78,8 @@ export function GameCard({
                 </>
               ) : game.code === 'flag-master' ? (
                 t.flagRoundSize
+              ) : game.code === 'number-iq' ? (
+                t.numberRoundSize
               ) : (
                 t.quickRound
               )}
