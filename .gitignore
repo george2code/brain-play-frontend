@@ -20,6 +20,7 @@
 # browser verification
 /test-results/
 /playwright-report/
+/.flag-source-data/
 
 # production
 /build

@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 
+import { flagFactEditorial } from './flag-fact-editorial.mjs';
+
 const file = 'src/services/demo/flags/flags.json';
 const catalog = JSON.parse(fs.readFileSync(file, 'utf8'));
 const changes = {
@@ -165,5 +167,38 @@ const changes = {
 for (const flag of catalog) {
   if (changes[flag.code]) Object.assign(flag, changes[flag.code]);
 }
+const facts = JSON.parse(
+  fs.readFileSync('scripts/flag-fact-overrides.json', 'utf8'),
+);
+const englishFacts = JSON.parse(
+  fs.readFileSync('scripts/flag-fact-overrides.en.json', 'utf8'),
+);
+for (const flag of catalog) {
+  const before = facts.before[flag.code];
+  if (!before) throw new Error(`Missing pre-answer fact for ${flag.code}`);
+  flag.factBefore = {
+    ...before,
+    ...flagFactEditorial.before[flag.code],
+    en: englishFacts.before[flag.code],
+  };
+  flag.factAfter = {
+    ...flag.factAfter,
+    ...facts.after[flag.code],
+    ...flagFactEditorial.after[flag.code],
+    ...(englishFacts.after[flag.code]
+      ? { en: englishFacts.after[flag.code] }
+      : {}),
+  };
+  for (const [stage, localized] of [
+    ['before', flag.factBefore],
+    ['after', flag.factAfter],
+  ]) {
+    for (const locale of ['en', 'ru', 'uk']) {
+      if (!localized[locale]?.trim()) {
+        throw new Error(`Missing ${stage} ${locale} fact for ${flag.code}`);
+      }
+    }
+  }
+}
 fs.writeFileSync(file, JSON.stringify(catalog, null, 2) + '\n');
-console.log(`Curated ${Object.keys(changes).length} flag records`);
+console.log(`Curated ${catalog.length} flag records`);

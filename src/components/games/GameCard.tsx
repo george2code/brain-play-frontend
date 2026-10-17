@@ -46,8 +46,8 @@ export function GameCard({
           <p className="min-h-11 text-sm leading-relaxed text-muted-foreground">
             {game.description[locale]}
           </p>
-          <div className="mt-5 border-t pt-4">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+          <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-t pt-4">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
               {best !== undefined ? (
                 <>
                   <span
@@ -61,14 +61,14 @@ export function GameCard({
                     className="inline-flex items-center gap-1"
                     aria-label={`${t.played}: ${played}`}
                   >
-                    <Gamepad2 size={13} />
+                    <Gamepad2 size={13} className="text-flag-ink" />
                     {played}
                   </span>
                   <span
                     className="inline-flex items-center gap-1"
                     aria-label={`${t.accuracy}: ${accuracy}%`}
                   >
-                    <Target size={13} />
+                    <Target size={13} className="text-destructive" />
                     {accuracy}%
                   </span>
                 </>
@@ -78,7 +78,7 @@ export function GameCard({
                 t.quickRound
               )}
             </div>
-            <span className="mt-3 flex items-center justify-between gap-2 text-sm font-semibold text-primary">
+            <span className="inline-flex items-center justify-self-end gap-2 whitespace-nowrap text-sm font-semibold text-primary">
               {t.play}
               <span className="flex size-8 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-accent">
                 <ArrowUpRight size={17} />

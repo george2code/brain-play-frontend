@@ -110,8 +110,21 @@ test('Flag Master has 195 translated flags and ten unique questions with four op
       assert.ok(flag.name[locale].trim());
       assert.ok(flag.factBefore[locale].trim());
       assert.ok(flag.factAfter[locale].trim(), `${flag.code}: ${locale}`);
+      assert.ok(
+        flag.factAfter[locale].length > flag.factBefore[locale].length,
+        `${flag.code}: post-answer fact should expand the teaser in ${locale}`,
+      );
     }
     assert.ok(flag.source.startsWith('https://'));
+  }
+  for (const locale of ['en', 'ru', 'uk'] as const) {
+    const teasers = flagCatalog.map((flag) => flag.factBefore[locale]);
+    assert.equal(new Set(teasers).size, flagCatalog.length);
+    assert.ok(
+      teasers.filter((fact) => /(?:1\d{3}|20\d{2})/u.test(fact)).length <=
+        Math.floor(flagCatalog.length / 10),
+      `Too many year-based pre-answer facts in ${locale}`,
+    );
   }
   const questions = createFlagQuestions('2026-10-16');
   assert.equal(questions.length, 10);

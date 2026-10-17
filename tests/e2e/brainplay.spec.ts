@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import flagCatalog from '../../src/services/demo/flags/flags.json';
+
 test('catalog, round, profile persistence, rename and reset', async ({
   page,
 }, testInfo) => {
@@ -28,11 +30,11 @@ test('catalog, round, profile persistence, rename and reset', async ({
   await expect(
     page.getByRole('region', { name: 'Try something new' }),
   ).toHaveCount(0);
-  await page.getByRole('button', { name: 'C 32', exact: true }).click();
+  await page.getByRole('button', { name: 'C32', exact: true }).click();
   await page.getByRole('button', { name: 'Next question' }).click();
-  await page.getByRole('button', { name: 'B 16', exact: true }).click();
+  await page.getByRole('button', { name: 'B16', exact: true }).click();
   await page.getByRole('button', { name: 'Next question' }).click();
-  await page.getByRole('button', { name: 'D 27', exact: true }).click();
+  await page.getByRole('button', { name: 'D27', exact: true }).click();
   await page.getByRole('button', { name: 'See my result' }).click();
   await expect(page.getByText('300', { exact: true })).toBeVisible();
   const recommendations = page.getByRole('region', {
@@ -134,6 +136,9 @@ test('languages, navigation and honest unavailable sign-in', async ({
 test('daily is recorded once, unknown route returns 404', async ({ page }) => {
   await page.route('http://localhost:5000/api/v1/**', (route) => route.abort());
   await page.goto('/daily');
+  await expect(
+    page.getByRole('button', { name: /^Start (flag|demo) round$/ }),
+  ).toBeVisible();
   const isFlagDay =
     (await page.getByRole('button', { name: 'Start flag round' }).count()) > 0;
   await page
@@ -143,7 +148,7 @@ test('daily is recorded once, unknown route returns 404', async ({ page }) => {
     .click();
   const roundCount = isFlagDay ? 10 : 3;
   for (let round = 0; round < roundCount; round++) {
-    await page.getByRole('button', { name: /^A / }).click();
+    await page.getByRole('button', { name: /^A/ }).click();
     await page
       .getByRole('button', {
         name: round === roundCount - 1 ? 'See my result' : 'Next question',
@@ -180,12 +185,35 @@ test('Flag Master teaches after each answer and records ten rounds locally when 
   await expect(
     page.getByRole('img', { name: 'Flag to identify' }),
   ).toBeVisible();
-  await expect(page.getByRole('button', { name: /^[A-D] / })).toHaveCount(4);
+  await expect(page.getByRole('button', { name: /^[A-D]/ })).toHaveCount(4);
   await expect(page.getByRole('link', { name: 'Read the source' })).toHaveCount(
     0,
   );
+  const teaser = await page
+    .locator('[aria-live="polite"] p')
+    .first()
+    .textContent();
+  const currentFlag = flagCatalog.find((flag) => flag.factBefore.en === teaser);
+  expect(currentFlag).toBeDefined();
+  await page.getByRole('combobox', { name: 'Language' }).click();
+  await page.getByRole('option', { name: 'Українська' }).click();
+  await expect(
+    page.getByText(currentFlag!.factBefore.uk, { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('combobox', { name: 'Мова' }).click();
+  await page.getByRole('option', { name: 'Русский' }).click();
+  await expect(
+    page.getByText(currentFlag!.factBefore.ru, { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('combobox', { name: 'Язык' }).click();
+  await page.getByRole('option', { name: 'English' }).click();
   for (let round = 0; round < 10; round++) {
-    await page.getByRole('button', { name: /^A / }).click();
+    await page.getByRole('button', { name: /^A/ }).click();
+    if (round === 0) {
+      await expect(
+        page.getByText(currentFlag!.factAfter.en, { exact: true }),
+      ).toBeVisible();
+    }
     await expect(
       page.getByRole('link', { name: 'Read the source' }),
     ).toBeVisible();
