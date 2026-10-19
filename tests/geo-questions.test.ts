@@ -19,9 +19,14 @@ test('every geography question has a selectable target on its map', () => {
       seen.add(question.id);
       const areas = getGeoAreas(question.mapRegion, question.viewport);
       assert.equal(new Set(areas.map((area) => area.id)).size, areas.length);
-      assert.ok(areas.length > 2);
+      assert.ok(
+        areas.length >= 10,
+        `${question.id} needs enough visible places to choose from`,
+      );
       assert.equal(areas[question.answer].id, question.targetId);
       assert.ok(areas[question.answer].path.length > 0);
+      const [left, top, right, bottom] = areas[question.answer].bounds;
+      assert.ok(right > left && bottom > top);
       assert.ok(question.viewport.width > 0);
       assert.ok(question.viewport.height > 0);
     }

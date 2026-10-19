@@ -123,7 +123,7 @@ test('Geo Challenge selects a map area and reveals the correct location', async 
   const map = page.locator('svg[aria-label^="Interactive map"]');
   const paths = map.locator('path[data-area-id]');
   await expect(map).toBeVisible();
-  expect(await paths.count()).toBeGreaterThan(2);
+  expect(await paths.count()).toBeGreaterThanOrEqual(10);
   await expect(page.getByRole('button', { name: /^A / })).toHaveCount(0);
   await expect(
     page.getByRole('button', { name: 'Zoom in on map' }),
@@ -231,6 +231,9 @@ test('Geo Challenge selects a map area and reveals the correct location', async 
     const currentMap = page.locator('svg[aria-label^="Interactive map"]');
     const label = await currentMap.getAttribute('aria-label');
     seenRegions.add(label!);
+    expect(
+      await currentMap.locator('path[data-area-id]').count(),
+    ).toBeGreaterThanOrEqual(10);
     const viewBox = (await currentMap.getAttribute('viewBox'))!
       .split(' ')
       .map(Number);
@@ -248,6 +251,12 @@ test('Geo Challenge selects a map area and reveals the correct location', async 
     ) {
       await page.screenshot({
         path: `test-results/geo-${label!.split(': ')[1].replaceAll(' ', '-').toLowerCase()}-${testInfo.project.name}.png`,
+        fullPage: true,
+      });
+    }
+    if ([2, 3, 7, 8].includes(round)) {
+      await page.screenshot({
+        path: `test-results/geo-context-round-${round}-${testInfo.project.name}.png`,
         fullPage: true,
       });
     }
@@ -295,6 +304,45 @@ test('Geo Challenge frames an island target for direct tapping', async ({
     path: `test-results/geo-papua-new-guinea-${testInfo.project.name}.png`,
     fullPage: true,
   });
+});
+
+test('Geo Challenge lets a small country be selected on the map', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0.5;
+  });
+  await page.goto('/games/geo-challenge');
+  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Find Ghana on the map.' }),
+  ).toBeVisible();
+  const map = page.locator('svg[aria-label^="Interactive map"]');
+  await map.scrollIntoViewIfNeeded();
+  const target = map.locator('path[data-area-id="288"]');
+  const point = await target.evaluate((node) => {
+    const shape = node as SVGGeometryElement;
+    const box = shape.getBBox();
+    for (let row = 1; row <= 7; row++) {
+      for (let column = 1; column <= 7; column++) {
+        const candidate = new DOMPoint(
+          box.x + (box.width * column) / 8,
+          box.y + (box.height * row) / 8,
+        );
+        if (shape.isPointInFill(candidate)) {
+          const screen = candidate.matrixTransform(shape.getScreenCTM()!);
+          return { x: screen.x, y: screen.y };
+        }
+      }
+    }
+    return null;
+  });
+  expect(point).not.toBeNull();
+  if (testInfo.project.name === 'mobile')
+    await page.touchscreen.tap(point!.x, point!.y);
+  else await page.mouse.click(point!.x, point!.y);
+  await expect(target).toHaveAttribute('fill', '#a4df65');
+  await expect(page.getByText('You got it!')).toBeVisible();
 });
 
 test('languages, navigation and honest unavailable sign-in', async ({

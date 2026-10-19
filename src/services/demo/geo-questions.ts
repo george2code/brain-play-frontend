@@ -10,28 +10,24 @@ import type {
 const l = (en: string, uk: string, ru: string): Localized => ({ en, uk, ru });
 
 const viewports = {
-  westAfrica: { bounds: [-7, 3, 8, 16], width: 720, height: 660 },
-  southAfrica: { bounds: [22, -27, 36, -15], width: 720, height: 680 },
-  eastAfrica: { bounds: [30, -6, 44, 7], width: 720, height: 700 },
-  northAfrica: { bounds: [-16, 26, 2, 38], width: 820, height: 600 },
-  eastAsia: { bounds: [127, 30, 147, 47], width: 650, height: 700 },
-  southAsia: { bounds: [66, 5, 93, 36], width: 680, height: 780 },
-  southeastAsia: { bounds: [95, 0, 114, 25], width: 620, height: 780 },
-  centralEurope: { bounds: [-6, 42, 29, 60], width: 820, height: 570 },
-  southEurope: { bounds: [3, 35, 20, 49], width: 720, height: 700 },
-  iberia: { bounds: [-12, 34, 6, 45], width: 820, height: 650 },
-  eastEurope: { bounds: [20, 43, 43, 54], width: 820, height: 520 },
-  northAmerica: { bounds: [-140, 40, -52, 75], width: 820, height: 600 },
-  mexico: { bounds: [-118, 13, -84, 34], width: 820, height: 620 },
+  westAfrica: { bounds: [-21, -2, 29, 31], width: 820, height: 600 },
+  southAfrica: { bounds: [10, -36, 45, -5], width: 760, height: 660 },
+  eastAfrica: { bounds: [16, -20, 54, 23], width: 760, height: 680 },
+  northAfrica: { bounds: [-21, 9, 37, 40], width: 820, height: 580 },
+  eastAsia: { bounds: [91, -5, 158, 59], width: 780, height: 700 },
+  southAsia: { bounds: [50, -2, 113, 43], width: 780, height: 640 },
+  southeastAsia: { bounds: [83, -13, 137, 34], width: 760, height: 670 },
+  centralEurope: { bounds: [-14, 33, 45, 67], width: 820, height: 600 },
+  southEurope: { bounds: [-12, 27, 38, 61], width: 820, height: 600 },
+  iberia: { bounds: [-19, 25, 30, 61], width: 820, height: 600 },
+  eastEurope: { bounds: [8, 31, 51, 67], width: 820, height: 620 },
+  northAmerica: { bounds: [-170, 5, -47, 80], width: 820, height: 650 },
+  mexico: { bounds: [-145, 4, -59, 65], width: 820, height: 640 },
   southAmerica: { bounds: [-82, -57, -34, 14], width: 580, height: 850 },
-  chile: { bounds: [-76, -56, -64, -17], width: 420, height: 850 },
-  australia: { bounds: [110, -46, 157, -8], width: 820, height: 680 },
-  newZealand: { bounds: [152, -48, 180, -16], width: 700, height: 780 },
-  papuaNewGuinea: { bounds: [130, -13, 158, 1], width: 820, height: 500 },
-  texas: { bounds: [-108, 24, -90, 39], width: 820, height: 700 },
-  california: { bounds: [-126, 30, -109, 44], width: 760, height: 720 },
-  arizona: { bounds: [-119, 29, -104, 40], width: 820, height: 650 },
-  florida: { bounds: [-94, 22, -78, 36], width: 760, height: 700 },
+  australia: { bounds: [100, -53, 180, 13], width: 820, height: 650 },
+  newZealand: { bounds: [112, -56, 180, 2], width: 780, height: 680 },
+  papuaNewGuinea: { bounds: [106, -24, 170, 17], width: 820, height: 600 },
+  unitedStates: { bounds: [-126, 22, -67, 51], width: 820, height: 570 },
 } as const satisfies Record<string, GeoViewport>;
 
 const pool: {
@@ -220,7 +216,7 @@ const pool: {
   {
     id: 'chile',
     mapRegion: 'south-america',
-    viewport: viewports.chile,
+    viewport: viewports.southAmerica,
     targetId: '152',
     prompt: l(
       'Find Chile on the map.',
@@ -264,7 +260,7 @@ const pool: {
   {
     id: 'texas',
     mapRegion: 'usa',
-    viewport: viewports.texas,
+    viewport: viewports.unitedStates,
     targetId: '48',
     prompt: l(
       'Find Texas on the map.',
@@ -275,7 +271,7 @@ const pool: {
   {
     id: 'california',
     mapRegion: 'usa',
-    viewport: viewports.california,
+    viewport: viewports.unitedStates,
     targetId: '06',
     prompt: l(
       'Find California on the map.',
@@ -286,7 +282,7 @@ const pool: {
   {
     id: 'arizona',
     mapRegion: 'usa',
-    viewport: viewports.arizona,
+    viewport: viewports.unitedStates,
     targetId: '04',
     prompt: l(
       'Which state is home to the Grand Canyon?',
@@ -297,7 +293,7 @@ const pool: {
   {
     id: 'florida',
     mapRegion: 'usa',
-    viewport: viewports.florida,
+    viewport: viewports.unitedStates,
     targetId: '12',
     prompt: l(
       'Find Florida on the map.',

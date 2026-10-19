@@ -16,6 +16,7 @@ export interface GeoArea {
   id: string;
   path: string;
   name: Localized;
+  bounds: [left: number, top: number, right: number, bottom: number];
 }
 
 const world = worldAtlas as unknown as Topology;
@@ -47,17 +48,6 @@ function countryName(id: string, fallback: string): Localized {
   };
 }
 
-function inRegion(id: string, region: GeoRegion) {
-  const country = countryByNumber.get(id);
-  if (!country) return false;
-  if (region === 'north-america')
-    return (
-      country.region === 'Americas' && country.subregion !== 'South America'
-    );
-  if (region === 'south-america') return country.subregion === 'South America';
-  return country.region.toLowerCase() === region;
-}
-
 export const GEO_REGIONS: GeoRegion[] = [
   'africa',
   'asia',
@@ -68,18 +58,7 @@ export const GEO_REGIONS: GeoRegion[] = [
   'usa',
 ];
 
-export function getGeoAreas(
-  region: GeoRegion,
-  viewport: GeoViewport,
-): GeoArea[] {
-  const key = `${region}:${viewport.bounds.join(',')}:${viewport.width}:${viewport.height}`;
-  const cached = areaCache.get(key);
-  if (cached) return cached;
-
-  const isStates = region === 'usa';
-  const features = (isStates ? stateFeatures : worldFeatures).filter((item) =>
-    isStates ? true : inRegion(String(item.id).padStart(3, '0'), region),
-  );
+export function geoMapProjection(viewport: GeoViewport) {
   const [west, south, east, north] = viewport.bounds;
   const bounds: MultiPoint = {
     type: 'MultiPoint',
@@ -90,7 +69,7 @@ export function getGeoAreas(
       [east, north],
     ],
   };
-  const projection = geoMercator()
+  return geoMercator()
     .fitExtent(
       [
         [0, 0],
@@ -102,6 +81,19 @@ export function getGeoAreas(
       [0, 0],
       [viewport.width, viewport.height],
     ]);
+}
+
+export function getGeoAreas(
+  region: GeoRegion,
+  viewport: GeoViewport,
+): GeoArea[] {
+  const key = `${region}:${viewport.bounds.join(',')}:${viewport.width}:${viewport.height}`;
+  const cached = areaCache.get(key);
+  if (cached) return cached;
+
+  const isStates = region === 'usa';
+  const features = isStates ? stateFeatures : worldFeatures;
+  const projection = geoMapProjection(viewport);
   const path = geoPath(projection);
   const areas = new Map<string, GeoArea>();
   for (const item of features) {
@@ -110,15 +102,26 @@ export function getGeoAreas(
       : String(item.id).padStart(3, '0');
     const outline = path(item as Feature<Geometry>);
     if (!outline) continue;
+    const [[left, top], [right, bottom]] = path.bounds(
+      item as Feature<Geometry>,
+    );
+    if (![left, top, right, bottom].every(Number.isFinite)) continue;
     const existing = areas.get(id);
     if (existing) {
       existing.path += outline;
+      existing.bounds = [
+        Math.min(existing.bounds[0], left),
+        Math.min(existing.bounds[1], top),
+        Math.max(existing.bounds[2], right),
+        Math.max(existing.bounds[3], bottom),
+      ];
       continue;
     }
     const fallback = String(item.properties?.name ?? id);
     areas.set(id, {
       id,
       path: outline,
+      bounds: [left, top, right, bottom],
       name: isStates
         ? { en: fallback, uk: fallback, ru: fallback }
         : countryName(id, fallback),
