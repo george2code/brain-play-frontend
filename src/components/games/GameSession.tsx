@@ -22,8 +22,13 @@ import { Progress } from '@/components/ui/progress';
 
 import { ROUTES } from '@/config/routes.config';
 
+import { currentRulesVersion } from '@/constants/game-rules.constants';
+
 import { useDemoProfile } from '@/hooks/useDemoProfile';
-import { FLAG_PROGRESS_EVENT, useFlagProgress } from '@/hooks/useFlagProgress';
+import {
+  VERIFIED_PROGRESS_EVENT,
+  useVerifiedProgress,
+} from '@/hooks/useVerifiedProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
@@ -37,6 +42,11 @@ import {
   serverRoundToQuestions,
   startFlagRound,
 } from '@/services/flag-master.service';
+import {
+  completeQuizRound,
+  numberQuestionsFromIds,
+  startQuizRound,
+} from '@/services/quiz-rounds.service';
 
 import type {
   DemoAttempt,
@@ -59,7 +69,7 @@ export function GameSession({
 }) {
   const { locale, t } = useLocale();
   const { profile, complete } = useDemoProfile();
-  const { history: savedFlagHistory } = useFlagProgress();
+  const { history: savedHistory } = useVerifiedProgress();
   const [phase, setPhase] = useState<'intro' | 'playing' | 'result'>('intro');
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -69,7 +79,7 @@ export function GameSession({
   const [numberQuestions, setNumberQuestions] = useState<DemoQuestion[]>([]);
   const [geoQuestions, setGeoQuestions] = useState<GeoQuestion[]>([]);
   const [numberLevel, setNumberLevel] = useState<NumberLevel>('mixed');
-  const [flagStorage, setFlagStorage] = useState<'cloud' | 'demo'>('demo');
+  const [roundStorage, setRoundStorage] = useState<'cloud' | 'demo'>('demo');
   const [starting, setStarting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
@@ -92,18 +102,18 @@ export function GameSession({
         (a) => a.mode === 'daily' && a.dailyDate === dailyDate,
       )
     : undefined;
-  const savedDaily =
-    dailyDate && game.code === 'flag-master'
-      ? savedFlagHistory.find(
-          (attempt) =>
-            attempt.mode.code === 'daily' &&
-            attempt.completedAt.slice(0, 10) === dailyDate,
-        )
-      : undefined;
+  const savedDaily = dailyDate
+    ? savedHistory.find(
+        (attempt) =>
+          attempt.mode.game.code === game.code &&
+          attempt.mode.code === 'daily' &&
+          attempt.completedAt.slice(0, 10) === dailyDate,
+      )
+    : undefined;
   const dailyResult: DemoAttempt | undefined = savedDaily
     ? {
         id: savedDaily.id,
-        game: 'flag-master',
+        game: game.code,
         mode: 'daily',
         dailyDate,
         correct: savedDaily.correctAnswers,
@@ -115,9 +125,7 @@ export function GameSession({
     : localDailyResult;
   const isCompletedDaily = !!dailyResult && phase === 'intro';
   const shownResult = result || dailyResult;
-  const isCloudFlagResult =
-    game.code === 'flag-master' &&
-    (flagStorage === 'cloud' || Boolean(savedDaily));
+  const isCloudResult = roundStorage === 'cloud' || Boolean(savedDaily);
 
   async function start() {
     if (starting) return;
@@ -127,21 +135,48 @@ export function GameSession({
       try {
         const round = await startFlagRound(dailyDate ? 'daily' : 'classic');
         setFlagQuestions(serverRoundToQuestions(round));
-        setFlagStorage('cloud');
+        setRoundStorage('cloud');
         nextId = round.roundId;
       } catch {
         setFlagQuestions(createFlagQuestions(dailyDate));
-        setFlagStorage('demo');
+        setRoundStorage('demo');
       }
     }
-    if (game.code === 'number-iq')
-      setNumberQuestions(
-        createNumberQuestions(dailyDate ? 'mixed' : numberLevel, dailyDate),
-      );
-    if (game.code === 'geo-challenge') {
-      const { createGeoQuestions } =
-        await import('@/services/demo/geo-questions');
-      setGeoQuestions(createGeoQuestions(dailyDate));
+    if (game.code === 'number-iq' || game.code === 'geo-challenge') {
+      try {
+        const mode = dailyDate
+          ? 'daily'
+          : game.code === 'number-iq' && numberLevel !== 'mixed'
+            ? numberLevel
+            : 'classic';
+        const round = await startQuizRound(game.code, mode);
+        if (round.rulesVersion !== 2 || round.contentVersion !== '1')
+          throw new Error('Unsupported game round.');
+        if (game.code === 'number-iq')
+          setNumberQuestions(
+            numberQuestionsFromIds(round.questions.map((item) => item.id)),
+          );
+        else {
+          const { geoQuestionsFromIds } =
+            await import('@/services/demo/geo-questions');
+          setGeoQuestions(
+            geoQuestionsFromIds(round.questions.map((item) => item.id)),
+          );
+        }
+        setRoundStorage('cloud');
+        nextId = round.roundId;
+      } catch {
+        if (game.code === 'number-iq')
+          setNumberQuestions(
+            createNumberQuestions(dailyDate ? 'mixed' : numberLevel, dailyDate),
+          );
+        else {
+          const { createGeoQuestions } =
+            await import('@/services/demo/geo-questions');
+          setGeoQuestions(createGeoQuestions(dailyDate));
+        }
+        setRoundStorage('demo');
+      }
     }
     sessionId.current = nextId;
     answers.current = [];
@@ -165,13 +200,35 @@ export function GameSession({
     } else {
       setSaving(true);
       let verifiedResult;
-      if (game.code === 'flag-master' && flagStorage === 'cloud') {
+      if (roundStorage === 'cloud') {
         try {
-          verifiedResult = await completeFlagRound(
-            sessionId.current,
-            answers.current,
-          );
-          window.dispatchEvent(new Event(FLAG_PROGRESS_EVENT));
+          if (game.code === 'flag-master')
+            verifiedResult = await completeFlagRound(
+              sessionId.current,
+              answers.current,
+            );
+          if (game.code === 'number-iq')
+            verifiedResult = await completeQuizRound(
+              game.code,
+              sessionId.current,
+              answers.current,
+            );
+          if (game.code === 'geo-challenge') {
+            const { getGeoAreas } =
+              await import('@/services/demo/geo-map-data');
+            const geoAnswers = geoQuestions.map(
+              (item, questionIndex) =>
+                getGeoAreas(item.mapRegion, item.viewport)[
+                  answers.current[questionIndex]
+                ]?.id ?? '',
+            );
+            verifiedResult = await completeQuizRound(
+              game.code,
+              sessionId.current,
+              geoAnswers,
+            );
+          }
+          window.dispatchEvent(new Event(VERIFIED_PROGRESS_EVENT));
         } catch {
           setSaveError(true);
           setSaving(false);
@@ -188,10 +245,8 @@ export function GameSession({
         total: verifiedResult?.totalRounds ?? questions.length,
         score: verifiedResult?.score ?? nextCorrect * 100,
         completedAt: verifiedResult?.completedAt ?? new Date().toISOString(),
-        ...(game.code === 'flag-master' ||
-        game.code === 'number-iq' ||
-        game.code === 'geo-challenge'
-          ? { rulesVersion: 2 }
+        ...(currentRulesVersion(game.code) > 1
+          ? { rulesVersion: currentRulesVersion(game.code) }
           : {}),
         ...(game.code === 'number-iq'
           ? { numberLevel: dailyDate ? 'mixed' : numberLevel }
@@ -218,23 +273,19 @@ export function GameSession({
             {dailyDate ? `${t.dailyMode} · ${dailyDate}` : t.practice}
           </span>
           <span className="rounded-full bg-secondary px-3 py-1.5 text-[11px] text-muted-foreground">
-            {game.code === 'flag-master' &&
-            phase === 'intro' &&
-            !isCompletedDaily
-              ? t.flagRoundSize
-              : game.code === 'number-iq' &&
-                  phase === 'intro' &&
-                  !isCompletedDaily
-                ? t.numberRoundSize
-                : game.code === 'geo-challenge' &&
-                    phase === 'intro' &&
-                    !isCompletedDaily
-                  ? t.geoRoundSize
-                  : isCloudFlagResult
-                    ? phase === 'playing'
-                      ? t.flagCloudRound
-                      : t.flagSaved
-                    : t.demoNotice}
+            {phase === 'intro' && !isCompletedDaily
+              ? game.code === 'flag-master'
+                ? t.flagRoundSize
+                : game.code === 'number-iq'
+                  ? t.numberRoundSize
+                  : game.code === 'geo-challenge'
+                    ? t.geoRoundSize
+                    : t.demoNotice
+              : isCloudResult
+                ? phase === 'playing'
+                  ? t.cloudRound
+                  : t.resultSaved
+                : t.demoNotice}
           </span>
         </div>
         {phase === 'intro' && !isCompletedDaily && (
@@ -370,9 +421,9 @@ export function GameSession({
                 {t.roundsHint}
               </p>
             )}
-            {game.code === 'flag-master' && flagStorage === 'demo' && (
+            {game.code !== 'time-traveler' && roundStorage === 'demo' && (
               <p className="mt-2 text-xs text-muted-foreground">
-                {t.flagOfflineNotice}
+                {t.offlineNotice}
               </p>
             )}
             {!geoQuestion && (
@@ -450,7 +501,7 @@ export function GameSession({
                   )}
                   {saveError && (
                     <p className="mb-2 text-sm text-destructive">
-                      {t.flagSaveError}
+                      {t.saveError}
                     </p>
                   )}
                   <Button
@@ -480,7 +531,7 @@ export function GameSession({
               {isCompletedDaily ? t.dailyCompleted : t.resultTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
-              {isCloudFlagResult
+              {isCloudResult
                 ? t.flagResultSaved
                 : isCompletedDaily
                   ? t.dailyDoneNote
@@ -525,7 +576,7 @@ export function GameSession({
                 </Button>
               )}
             </div>
-            {!isCloudFlagResult && (
+            {!isCloudResult && (
               <div className="mt-8 border-t pt-6">
                 <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
                   {t.localDescription}

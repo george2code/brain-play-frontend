@@ -324,6 +324,28 @@ function shuffle<T>(items: readonly T[], random: () => number): T[] {
   return result;
 }
 
+function makeGeoQuestion(item: (typeof pool)[number]): GeoQuestion {
+  const areas = getGeoAreas(item.mapRegion, item.viewport);
+  const answer = areas.findIndex((area) => area.id === item.targetId);
+  if (answer < 0)
+    throw new Error(`Missing map area ${item.mapRegion}:${item.targetId}`);
+  return {
+    ...item,
+    options: areas.map((area) => area.name),
+    answer,
+  };
+}
+
+export function geoQuestionsFromIds(ids: string[]): GeoQuestion[] {
+  if (ids.length !== 10 || new Set(ids).size !== 10)
+    throw new Error('Invalid Geo Challenge round.');
+  return ids.map((id) => {
+    const item = pool.find((candidate) => candidate.id === id);
+    if (!item) throw new Error('Unknown Geo Challenge question.');
+    return makeGeoQuestion(item);
+  });
+}
+
 export function createGeoQuestions(dailyDate?: string): GeoQuestion[] {
   const random = dailyDate
     ? seededRandom(`geo-challenge:${dailyDate}`)
@@ -339,15 +361,5 @@ export function createGeoQuestions(dailyDate?: string): GeoQuestion[] {
     pool.filter((item) => !firstPerRegion.includes(item)),
     random,
   ).slice(0, 10 - GEO_REGIONS.length);
-  return shuffle([...firstPerRegion, ...extras], random).map((item) => {
-    const areas = getGeoAreas(item.mapRegion, item.viewport);
-    const answer = areas.findIndex((area) => area.id === item.targetId);
-    if (answer < 0)
-      throw new Error(`Missing map area ${item.mapRegion}:${item.targetId}`);
-    return {
-      ...item,
-      options: areas.map((area) => area.name),
-      answer,
-    };
-  });
+  return shuffle([...firstPerRegion, ...extras], random).map(makeGeoQuestion);
 }

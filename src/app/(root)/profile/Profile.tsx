@@ -1,6 +1,8 @@
 'use client';
 import {
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   Flame,
   Gamepad2,
   Sprout,
@@ -8,12 +10,14 @@ import {
   Trophy,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { SignInDialog } from '@/components/auth/SignInDialog';
 import { DailyCard } from '@/components/games/DailyCard';
 import { GameCard } from '@/components/games/GameCard';
 import { ProfileSettings } from '@/components/profile/ProfileSettings';
 import { AdSlot } from '@/components/shared/AdSlot';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -28,7 +32,7 @@ import {
 import { GAMES, getGame } from '@/constants/games.constants';
 
 import { useDemoProfile } from '@/hooks/useDemoProfile';
-import { useFlagProgress } from '@/hooks/useFlagProgress';
+import { useVerifiedProgress } from '@/hooks/useVerifiedProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
@@ -39,43 +43,51 @@ import {
   numberTrophy,
   progressStats,
 } from '@/utils/progress.utils';
+import {
+  verifiedAttempts,
+  verifiedStatsForGame,
+  verifiedTotals,
+} from '@/utils/verified-progress.utils';
+
+const HISTORY_LIMIT = 50;
+const HISTORY_PAGE_SIZE = 8;
 
 export default function Profile() {
+  const [historyPage, setHistoryPage] = useState(1);
   const { t, locale } = useLocale();
   const { profile, hasPlayed: hasLocalPlayed, hydrated } = useDemoProfile();
   const {
-    stats: flagStats,
-    history: flagHistory,
-    loading: flagLoading,
-  } = useFlagProgress();
-  const hasPlayed = hasLocalPlayed || !!flagStats?.played;
-  const remoteAttempts: DemoAttempt[] = flagHistory.map((attempt) => ({
-    id: attempt.id,
-    game: 'flag-master',
-    mode: attempt.mode.code === 'daily' ? 'daily' : 'practice',
-    score: attempt.score,
-    correct: attempt.correctAnswers,
-    total: attempt.totalRounds,
-    completedAt: attempt.completedAt,
-    rulesVersion: 2,
-  }));
+    stats: verifiedStats,
+    history: verifiedHistory,
+    loading: verifiedLoading,
+  } = useVerifiedProgress();
+  const remote = verifiedTotals(verifiedStats);
+  const hasPlayed = hasLocalPlayed || remote.played > 0;
+  const remoteAttempts: DemoAttempt[] = verifiedAttempts(verifiedHistory);
   const history = [...profile.attempts, ...remoteAttempts].sort((a, b) =>
     b.completedAt.localeCompare(a.completedAt),
+  );
+  const recentHistory = history.slice(0, HISTORY_LIMIT);
+  const historyPageCount = Math.ceil(recentHistory.length / HISTORY_PAGE_SIZE);
+  const currentHistoryPage = Math.min(historyPage, historyPageCount || 1);
+  const visibleHistory = recentHistory.slice(
+    (currentHistoryPage - 1) * HISTORY_PAGE_SIZE,
+    currentHistoryPage * HISTORY_PAGE_SIZE,
   );
   const localTotals = Object.values(profile.totals || {});
   const localPlayed = localTotals.reduce((sum, item) => sum + item.played, 0);
   const localCorrect = localTotals.reduce((sum, item) => sum + item.correct, 0);
   const localQuestions = localTotals.reduce((sum, item) => sum + item.total, 0);
-  const played = localPlayed + (flagStats?.played || 0);
-  const correct = localCorrect + (flagStats?.correct || 0);
-  const total = localQuestions + (flagStats?.played || 0) * 10;
+  const played = localPlayed + remote.played;
+  const correct = localCorrect + remote.correct;
+  const total = localQuestions + remote.total;
   const stats = {
     played,
     correct,
     accuracy: total ? Math.round((correct / total) * 100) : 0,
     streak: progressStats(history).streak,
   };
-  if (!hydrated || (!hasLocalPlayed && flagLoading))
+  if (!hydrated || (!hasLocalPlayed && verifiedLoading))
     return (
       <div className="page-container py-12">
         <Skeleton className="h-80 w-full" />
@@ -102,7 +114,7 @@ export default function Profile() {
       <div className="mb-8 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
         <div>
           <p className="eyebrow mb-3 text-primary">
-            {flagStats?.played ? t.flagSaved : t.localOnly}
+            {remote.played ? t.resultSaved : t.localOnly}
           </p>
           <h1 className="text-4xl font-semibold tracking-tight">
             {profile.nickname || t.guest}
@@ -131,7 +143,11 @@ export default function Profile() {
         <div className="min-w-0">
           <div className="grid gap-5 sm:grid-cols-2">
             {GAMES.map((game) => {
-              const summary = combinedGameStats(profile, game.code, flagStats);
+              const summary = combinedGameStats(
+                profile,
+                game.code,
+                verifiedStatsForGame(verifiedStats, game.code),
+              );
               const accuracy = summary.total
                 ? Math.round((summary.correct / summary.total) * 100)
                 : 0;
@@ -144,7 +160,10 @@ export default function Profile() {
                     accuracy={accuracy}
                     numberBestLevel={
                       game.code === 'number-iq'
-                        ? numberTrophy(profile)?.level
+                        ? numberTrophy(
+                            profile,
+                            verifiedStats['number-iq']?.bestByLevel,
+                          )?.level
                         : undefined
                     }
                   />
@@ -173,14 +192,14 @@ export default function Profile() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {history.slice(0, 10).map((attempt) => (
+                {visibleHistory.map((attempt) => (
                   <TableRow key={attempt.id}>
                     <TableCell className="py-4 font-medium">
                       {getGame(attempt.game)?.title}
                       <span className="mt-1 block text-[11px] font-normal text-muted-foreground">
                         {attempt.mode === 'daily' ? t.dailyMode : t.practice} ·{' '}
                         {remoteAttempts.some((saved) => saved.id === attempt.id)
-                          ? t.flagSaved
+                          ? t.resultSaved
                           : t.demoNotice}
                       </span>
                     </TableCell>
@@ -198,13 +217,43 @@ export default function Profile() {
                 ))}
               </TableBody>
             </Table>
+            {historyPageCount > 1 && (
+              <nav
+                aria-label={t.historyPages}
+                className="mt-5 flex items-center justify-center gap-3 border-t border-border pt-5"
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="size-11"
+                  aria-label={t.previousPage}
+                  disabled={currentHistoryPage === 1}
+                  onClick={() => setHistoryPage(currentHistoryPage - 1)}
+                >
+                  <ChevronLeft aria-hidden="true" />
+                </Button>
+                <span className="min-w-20 text-center text-sm text-muted-foreground">
+                  {t.page} {currentHistoryPage} {t.of} {historyPageCount}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="size-11"
+                  aria-label={t.nextPage}
+                  disabled={currentHistoryPage === historyPageCount}
+                  onClick={() => setHistoryPage(currentHistoryPage + 1)}
+                >
+                  <ChevronRight aria-hidden="true" />
+                </Button>
+              </nav>
+            )}
           </section>
           <div className="mt-8">
             <AdSlot />
           </div>
         </div>
         <aside className="min-w-0 space-y-5">
-          {!flagStats?.played && (
+          {!remote.played && (
             <section className="flex flex-col items-start gap-5 rounded-2xl border border-primary/15 bg-hero p-6">
               <div>
                 <h2 className="text-lg font-semibold">{t.saveResult}</h2>

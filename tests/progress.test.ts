@@ -74,6 +74,46 @@ test('finishing the same round twice or replaying a daily cannot duplicate progr
     3,
   );
 });
+
+test('two ten-question Geo Challenge rounds survive reading and rewriting local progress', () => {
+  const oldRound = attempt({
+    id: 'geo-old',
+    game: 'geo-challenge',
+    completedAt: '2026-10-17T10:00:00.000Z',
+  });
+  const first = attempt({
+    id: 'geo-first',
+    game: 'geo-challenge',
+    total: 10,
+    correct: 7,
+    score: 700,
+    rulesVersion: 2,
+    completedAt: '2026-10-19T09:00:00.000Z',
+  });
+  const second = attempt({
+    id: 'geo-second',
+    game: 'geo-challenge',
+    total: 10,
+    correct: 5,
+    score: 500,
+    rulesVersion: 2,
+    completedAt: '2026-10-19T11:00:00.000Z',
+  });
+  let profile = addAttempt(EMPTY_PROFILE, oldRound);
+  profile = addAttempt(parseProfile(JSON.stringify(profile)), first);
+  profile = addAttempt(parseProfile(JSON.stringify(profile)), second);
+  const restored = parseProfile(JSON.stringify(profile));
+  assert.deepEqual(
+    restored.attempts.map((item) => item.id),
+    ['geo-second', 'geo-first', 'geo-old'],
+  );
+  assert.deepEqual(gameStats(restored, 'geo-challenge'), {
+    played: 3,
+    correct: 14,
+    total: 23,
+    bestScore: 700,
+  });
+});
 test('streak counts unique UTC days, survives yesterday and expires after a missed day', () => {
   const attempts = [
     attempt(),

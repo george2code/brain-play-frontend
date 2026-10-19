@@ -1,7 +1,127 @@
 import { expect, test } from '@playwright/test';
 
 import flagCatalog from '../../src/services/demo/flags/flags.json';
-import { NUMBER_QUESTION_BANK } from '../../src/services/demo/number-questions';
+import { createGeoQuestions } from '../../src/services/demo/geo-questions';
+import {
+  NUMBER_QUESTION_BANK,
+  createNumberQuestions,
+} from '../../src/services/demo/number-questions';
+
+test.beforeEach(async ({ page }) => {
+  // The existing UI suite exercises the explicit offline demo path.
+  await page.route('**/api/v1/quiz-rounds/**', (route) => route.abort());
+});
+
+test('server Geo and Number rounds appear in the profile without local copies', async ({
+  page,
+}) => {
+  const cors = {
+    'access-control-allow-origin': 'http://localhost:3100',
+    'access-control-allow-credentials': 'true',
+  };
+  const completed: string[] = [];
+  await page.unroute('**/api/v1/quiz-rounds/**');
+  await page.route('**/api/v1/quiz-rounds/**', (route) => {
+    const path = new URL(route.request().url()).pathname;
+    const game = path.includes('geo-challenge') ? 'geo-challenge' : 'number-iq';
+    if (path.endsWith('/stats')) {
+      const played = completed.filter((item) => item === game).length;
+      return route.fulfill({
+        json: {
+          played,
+          correct: played * 5,
+          total: played * 10,
+          bestScore: played ? 500 : 0,
+          bestByLevel: game === 'number-iq' && played ? { mixed: 500 } : {},
+          rulesVersion: 2,
+        },
+        headers: cors,
+      });
+    }
+    if (path.endsWith('/complete')) {
+      completed.push(game);
+      return route.fulfill({
+        json: {
+          roundId: `server-${game}`,
+          correctAnswers: 5,
+          score: 500,
+          totalRounds: 10,
+          completedAt: '2026-10-19T12:00:00.000Z',
+        },
+        headers: cors,
+      });
+    }
+    const ids =
+      game === 'geo-challenge'
+        ? createGeoQuestions('2026-10-19').map((item) => item.id)
+        : createNumberQuestions('mixed', '2026-10-19').map((item) => item.id);
+    return route.fulfill({
+      json: {
+        roundId: `server-${game}`,
+        rulesVersion: 2,
+        contentVersion: '1',
+        questions: ids.map((id) => ({ id })),
+      },
+      headers: cors,
+    });
+  });
+  await page.route('**/game-attempts/me**', (route) =>
+    route.fulfill({
+      json: {
+        items: completed.map((game) => ({
+          id: `server-${game}`,
+          score: 500,
+          correctAnswers: 5,
+          totalRounds: 10,
+          completedAt: '2026-10-19T12:00:00.000Z',
+          verificationStatus: 'VERIFIED',
+          mode: {
+            code: 'classic',
+            rulesVersion: 2,
+            game: { code: game },
+          },
+        })),
+      },
+      headers: cors,
+    }),
+  );
+  await page.goto('/games/number-iq');
+  await page.getByRole('button', { name: 'Start round' }).click();
+  await expect(page.getByText('Result saved when you finish')).toBeVisible();
+  for (let index = 0; index < 10; index++) {
+    await page.getByRole('button', { name: /^A / }).click();
+    await page
+      .getByRole('button', {
+        name: index === 9 ? 'See my result' : 'Next question',
+      })
+      .click();
+  }
+  await page.goto('/games/geo-challenge');
+  await page.getByRole('button', { name: 'Start round' }).click();
+  await expect(page.getByText('Result saved when you finish')).toBeVisible();
+  for (let index = 0; index < 10; index++) {
+    await page.locator('path[data-area-id]').first().dispatchEvent('click');
+    await page
+      .getByRole('button', {
+        name: index === 9 ? 'See my result' : 'Next question',
+      })
+      .click();
+  }
+  await page.goto('/profile');
+  for (const game of ['Number IQ', 'Geo Challenge']) {
+    await expect(
+      page
+        .getByRole('link', { name: `Let’s play — ${game}` })
+        .getByLabel('Games played: 1'),
+    ).toBeVisible();
+  }
+  await expect(page.getByRole('row')).toHaveCount(3);
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem('brainplay:demo-profile:v1'),
+    ),
+  ).toBeNull();
+});
 
 test('catalog, round, profile persistence, rename and reset', async ({
   page,
@@ -26,7 +146,7 @@ test('catalog, round, profile persistence, rename and reset', async ({
   await page
     .getByRole('link', { name: 'Let’s play — Number IQ', exact: true })
     .click();
-  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await page.getByRole('button', { name: 'Start round' }).click();
   await expect(page.locator('[data-ad-slot]')).toHaveCount(0);
   await expect(
     page.getByRole('region', { name: 'Try something new' }),
@@ -80,9 +200,7 @@ test('catalog, round, profile persistence, rename and reset', async ({
   await expect(
     page.getByRole('heading', { name: 'Geo Challenge', exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Start demo round' }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start round' })).toBeVisible();
   await page.goto('/profile');
   await expect(
     page.getByRole('heading', { name: 'Curious player.' }),
@@ -119,7 +237,7 @@ test('Geo Challenge selects a map area and reveals the correct location', async 
   });
   await page.goto('/games/geo-challenge');
   await expect(page.getByText('10 map questions per round')).toBeVisible();
-  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await page.getByRole('button', { name: 'Start round' }).click();
   const map = page.locator('svg[aria-label^="Interactive map"]');
   const paths = map.locator('path[data-area-id]');
   await expect(map).toBeVisible();
@@ -284,7 +402,7 @@ test('Geo Challenge frames an island target for direct tapping', async ({
     Math.random = () => 0.35;
   });
   await page.goto('/games/geo-challenge');
-  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await page.getByRole('button', { name: 'Start round' }).click();
   await expect(
     page.getByRole('heading', { name: 'Find Papua New Guinea on the map.' }),
   ).toBeVisible();
@@ -313,7 +431,7 @@ test('Geo Challenge lets a small country be selected on the map', async ({
     Math.random = () => 0.5;
   });
   await page.goto('/games/geo-challenge');
-  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await page.getByRole('button', { name: 'Start round' }).click();
   await expect(
     page.getByRole('heading', { name: 'Find Ghana on the map.' }),
   ).toBeVisible();
@@ -389,7 +507,7 @@ test('Number IQ shows the answer and worked solution in the current question', a
 }, testInfo) => {
   await page.goto('/games/number-iq');
   await page.getByRole('button', { name: 'Challenge' }).click();
-  await page.getByRole('button', { name: 'Start demo round' }).click();
+  await page.getByRole('button', { name: 'Start round' }).click();
   const visual = await page.getByTestId('question-visual').textContent();
   const question = NUMBER_QUESTION_BANK.find((item) => item.visual === visual);
   expect(question?.difficulty).toBe('hard');
@@ -528,20 +646,24 @@ test('daily is recorded once, unknown route returns 404', async ({ page }) => {
   await page.route('http://localhost:5000/api/v1/**', (route) => route.abort());
   await page.goto('/daily');
   await expect(
-    page.getByRole('button', { name: /^Start (flag|demo) round$/ }),
+    page.getByRole('button', { name: /^Start (flag )?round$/ }),
   ).toBeVisible();
   const isFlagDay =
     (await page.getByRole('button', { name: 'Start flag round' }).count()) > 0;
   await page
     .getByRole('button', {
-      name: isFlagDay ? 'Start flag round' : 'Start demo round',
+      name: isFlagDay ? 'Start flag round' : 'Start round',
     })
     .click();
   const isNumberDay =
     (await page.getByRole('heading', { name: 'Number IQ' }).count()) > 0;
-  const roundCount = isFlagDay || isNumberDay ? 10 : 3;
+  const isGeoDay =
+    (await page.getByRole('heading', { name: 'Geo Challenge' }).count()) > 0;
+  const roundCount = isFlagDay || isNumberDay || isGeoDay ? 10 : 3;
   for (let round = 0; round < roundCount; round++) {
-    await page.getByRole('button', { name: /^A/ }).click();
+    if (isGeoDay)
+      await page.locator('path[data-area-id]').first().dispatchEvent('click');
+    else await page.getByRole('button', { name: /^A/ }).click();
     await page
       .getByRole('button', {
         name: round === roundCount - 1 ? 'See my result' : 'Next question',
@@ -660,6 +782,7 @@ test('profile cards include older rounds and local Flag Master demos alongside s
           score: 800,
           correctAnswers: 8,
           totalRounds: 10,
+          verificationStatus: 'VERIFIED',
           completedAt: `2026-10-${String(13 + index).padStart(2, '0')}T10:00:00.000Z`,
           mode: {
             code: 'classic',
@@ -728,4 +851,188 @@ test('profile cards include older rounds and local Flag Master demos alongside s
       .locator('..')
       .locator('strong'),
   ).toHaveText('8');
+});
+
+test('profile history shows eight results per page from the latest fifty', async ({
+  page,
+}) => {
+  const cors = {
+    'access-control-allow-origin': 'http://localhost:3100',
+    'access-control-allow-credentials': 'true',
+  };
+  const attempts = Array.from({ length: 52 }, (_, index) => ({
+    id: `server-history-${index}`,
+    score: 1000 - index,
+    correctAnswers: 8,
+    totalRounds: 10,
+    verificationStatus: 'VERIFIED',
+    completedAt: new Date(
+      Date.UTC(2026, 9, 19, 12) - index * 60_000,
+    ).toISOString(),
+    mode: {
+      code: 'classic',
+      rulesVersion: 2,
+      game: { code: 'flag-master' },
+    },
+  }));
+  await page.route('**/flag-master/stats', (route) =>
+    route.fulfill({
+      json: {
+        played: 52,
+        correct: 416,
+        wrong: 104,
+        accuracy: 80,
+        bestScore: 1000,
+        rulesVersion: 2,
+      },
+      headers: cors,
+    }),
+  );
+  await page.route('**/quiz-rounds/**/stats', (route) =>
+    route.fulfill({ status: 401, json: {}, headers: cors }),
+  );
+  const requestedCursors: string[] = [];
+  await page.route('**/game-attempts/me**', (route) => {
+    const cursor = new URL(route.request().url()).searchParams.get('cursor');
+    if (cursor) requestedCursors.push(cursor);
+    return route.fulfill({
+      json: {
+        items: attempts.slice(0, 50),
+        nextCursor: attempts[49].id,
+      },
+      headers: cors,
+    });
+  });
+
+  await page.goto('/profile');
+  const rows = page.getByRole('row');
+  await expect(rows).toHaveCount(9);
+  await expect(rows.nth(1)).toContainText('1000');
+  await expect(
+    page.getByRole('navigation', { name: 'Discovery pages' }),
+  ).toContainText('Page 1 of 7');
+  await expect(
+    page.getByRole('button', { name: 'Previous page' }),
+  ).toBeDisabled();
+  for (let index = 0; index < 6; index++) {
+    await page.getByRole('button', { name: 'Next page' }).click();
+  }
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(1)).toContainText('952');
+  await expect(rows.nth(2)).toContainText('951');
+  await expect(page.getByRole('button', { name: 'Next page' })).toBeDisabled();
+  expect(requestedCursors).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test('profile hides history pagination when there are exactly eight results', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'brainplay:demo-profile:v1',
+      JSON.stringify({
+        version: 1,
+        nickname: 'Explorer',
+        attempts: Array.from({ length: 8 }, (_, index) => ({
+          id: `local-history-${index}`,
+          game: 'flag-master',
+          mode: 'practice',
+          correct: 8,
+          total: 10,
+          score: 800,
+          completedAt: new Date(
+            Date.UTC(2026, 9, 19, 12) - index * 60_000,
+          ).toISOString(),
+          rulesVersion: 2,
+        })),
+      }),
+    );
+  });
+  await page.route('**/game-attempts/me**', (route) =>
+    route.fulfill({ status: 401, json: {} }),
+  );
+  await page.goto('/profile');
+  await expect(page.getByRole('row')).toHaveCount(9);
+  await expect(
+    page.getByRole('navigation', { name: 'Discovery pages' }),
+  ).toHaveCount(0);
+});
+
+test('profile shows both recent ten-question Geo Challenge results above older games', async ({
+  page,
+}) => {
+  await page.route('http://localhost:5000/api/v1/**', (route) => route.abort());
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'brainplay:demo-profile:v1',
+      JSON.stringify({
+        version: 1,
+        nickname: 'Explorer',
+        attempts: [
+          {
+            id: 'geo-19-later',
+            game: 'geo-challenge',
+            mode: 'practice',
+            correct: 6,
+            total: 10,
+            score: 600,
+            completedAt: '2026-10-19T14:00:00.000Z',
+            rulesVersion: 2,
+          },
+          {
+            id: 'geo-19-earlier',
+            game: 'geo-challenge',
+            mode: 'practice',
+            correct: 7,
+            total: 10,
+            score: 700,
+            completedAt: '2026-10-19T09:00:00.000Z',
+            rulesVersion: 2,
+          },
+          {
+            id: 'number-17',
+            game: 'number-iq',
+            mode: 'practice',
+            correct: 3,
+            total: 3,
+            score: 300,
+            completedAt: '2026-10-17T10:00:00.000Z',
+          },
+        ],
+        totals: {
+          'geo-challenge:2': {
+            played: 2,
+            correct: 13,
+            total: 20,
+            bestScore: 700,
+          },
+          'number-iq:1': {
+            played: 1,
+            correct: 3,
+            total: 3,
+            bestScore: 300,
+          },
+        },
+      }),
+    );
+  });
+  await page.goto('/profile');
+  await expect(
+    page
+      .getByRole('link', { name: 'Let’s play — Geo Challenge' })
+      .getByLabel('Games played: 2'),
+  ).toBeVisible();
+  const rows = page.getByRole('row');
+  await expect(rows).toHaveCount(4);
+  await expect(rows.nth(1)).toContainText('Geo Challenge');
+  await expect(rows.nth(1)).toContainText('Oct 19');
+  await expect(rows.nth(2)).toContainText('Geo Challenge');
+  await expect(rows.nth(2)).toContainText('Oct 19');
+  await expect(rows.nth(3)).toContainText('Oct 17');
 });

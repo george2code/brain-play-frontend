@@ -6,6 +6,7 @@ import { ROUTES } from '@/config/routes.config';
 
 import { useDemoProfile } from '@/hooks/useDemoProfile';
 import { useUtcDay } from '@/hooks/useUtcDay';
+import { useVerifiedProgress } from '@/hooks/useVerifiedProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
@@ -15,9 +16,17 @@ export function DailyCard() {
   const { t } = useLocale();
   const today = useUtcDay();
   const { profile } = useDemoProfile();
+  const { history } = useVerifiedProgress();
   const completed =
     today &&
-    profile.attempts.some((a) => a.mode === 'daily' && a.dailyDate === today);
+    (profile.attempts.some(
+      (a) => a.mode === 'daily' && a.dailyDate === today,
+    ) ||
+      history.some(
+        (attempt) =>
+          attempt.mode.code === 'daily' &&
+          attempt.completedAt.slice(0, 10) === today,
+      ));
   return (
     <section className="relative overflow-hidden rounded-2xl border border-primary/15 bg-hero p-6">
       <div className="mb-6 flex items-center justify-between">

@@ -7,6 +7,7 @@ import { dictionaries } from '@/i18n/dictionaries';
 import flagCatalog from '@/services/demo/flags/flags.json';
 
 import type { DemoQuestion } from '@/shared/types/game.types';
+import type { GameCode } from '@/shared/types/game.types';
 
 const client = axios.create({
   baseURL: API_BASE_URL,
@@ -95,18 +96,22 @@ export type ServerAttempt = {
   correctAnswers: number;
   totalRounds: number;
   completedAt: string;
+  verificationStatus: 'VERIFIED' | 'PENDING' | 'REJECTED';
   mode: { code: string; rulesVersion: number; game: { code: string } };
 };
 
-export async function readFlagHistory(): Promise<ServerAttempt[]> {
+export async function readVerifiedHistory(): Promise<ServerAttempt[]> {
   try {
     const response = await client.get<{ items: ServerAttempt[] }>(
       '/game-attempts/me',
-      { params: { limit: 20 } },
+      { params: { limit: 50 } },
     );
     return response.data.items.filter(
       (attempt) =>
-        attempt.mode.game.code === 'flag-master' &&
+        attempt.verificationStatus === 'VERIFIED' &&
+        ['flag-master', 'geo-challenge', 'number-iq'].includes(
+          attempt.mode.game.code as GameCode,
+        ) &&
         attempt.mode.rulesVersion === 2,
     );
   } catch (error) {

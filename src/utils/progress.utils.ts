@@ -1,3 +1,4 @@
+import { roundSizeFor } from '@/constants/game-rules.constants';
 import { GAMES, isGameCode } from '@/constants/games.constants';
 
 import type {
@@ -67,15 +68,18 @@ export function gameStats(profile: DemoProfile, game: GameCode): DemoGameStats {
   );
 }
 
-export function numberTrophy(profile: DemoProfile): {
+export function numberTrophy(
+  profile: DemoProfile,
+  remoteBest?: Partial<Record<NumberLevel, number>>,
+): {
   level: NumberLevel;
   score: number;
 } | null {
   const bests = profile.numberBestByLevel || legacyNumberBest(profile.totals);
   let winner: { level: NumberLevel; score: number } | null = null;
   for (const level of TROPHY_ORDER) {
-    const score = bests[level];
-    if (score !== undefined && (!winner || score > winner.score))
+    const score = Math.max(bests[level] ?? -1, remoteBest?.[level] ?? -1);
+    if (score >= 0 && (!winner || score > winner.score))
       winner = { level, score };
   }
   return winner;
@@ -84,19 +88,20 @@ export function numberTrophy(profile: DemoProfile): {
 export function combinedGameStats(
   profile: DemoProfile,
   game: GameCode,
-  remoteFlagStats?: {
+  remoteStats?: {
     played: number;
     correct: number;
+    total?: number;
     bestScore: number;
   } | null,
 ): DemoGameStats {
   const local = gameStats(profile, game);
-  if (game !== 'flag-master' || !remoteFlagStats) return local;
+  if (!remoteStats) return local;
   return {
-    played: local.played + remoteFlagStats.played,
-    correct: local.correct + remoteFlagStats.correct,
-    total: local.total + remoteFlagStats.played * 10,
-    bestScore: Math.max(local.bestScore, remoteFlagStats.bestScore),
+    played: local.played + remoteStats.played,
+    correct: local.correct + remoteStats.correct,
+    total: local.total + (remoteStats.total ?? remoteStats.played * 10),
+    bestScore: Math.max(local.bestScore, remoteStats.bestScore),
   };
 }
 export const utcDay = (date: Date = new Date()) =>
@@ -125,11 +130,7 @@ export function parseProfile(raw: string | null): DemoProfile {
           isGameCode(a.game) &&
           ['practice', 'daily'].includes(a.mode) &&
           Number.isInteger(a.total) &&
-          a.total ===
-            ((a.game === 'flag-master' || a.game === 'number-iq') &&
-            a.rulesVersion === 2
-              ? 10
-              : 3) &&
+          a.total === roundSizeFor(a.game, a.rulesVersion ?? 1) &&
           Number.isInteger(a.correct) &&
           a.correct >= 0 &&
           a.correct <= a.total &&
@@ -151,11 +152,14 @@ export function parseProfile(raw: string | null): DemoProfile {
       !Array.isArray(value.totals)
     ) {
       for (const [key, stat] of Object.entries(value.totals)) {
+        const match = key.match(/^([^:]+):([1-9]\d*)$/);
+        const roundSize =
+          match && isGameCode(match[1])
+            ? roundSizeFor(match[1], Number(match[2]))
+            : undefined;
         const item = stat as DemoGameStats;
         if (
-          /^(geo-challenge|number-iq|time-traveler|flag-master):1$|^(flag-master|number-iq):2$/.test(
-            key,
-          ) &&
+          roundSize !== undefined &&
           item &&
           Number.isInteger(item.played) &&
           item.played >= 0 &&
@@ -165,8 +169,7 @@ export function parseProfile(raw: string | null): DemoProfile {
           item.total >= item.correct &&
           Number.isInteger(item.bestScore) &&
           item.bestScore >= 0 &&
-          item.bestScore <=
-            (key === 'flag-master:2' || key === 'number-iq:2' ? 1000 : 300)
+          item.bestScore <= roundSize * 100
         )
           totals[key] = item;
       }

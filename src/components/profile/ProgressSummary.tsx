@@ -5,38 +5,35 @@ import Link from 'next/link';
 import { ROUTES } from '@/config/routes.config';
 
 import { useDemoProfile } from '@/hooks/useDemoProfile';
+import type { VerifiedStats } from '@/hooks/useVerifiedProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
-import type {
-  ServerAttempt,
-  ServerFlagStats,
-} from '@/services/flag-master.service';
+import type { ServerAttempt } from '@/services/flag-master.service';
 
 import { progressStats } from '@/utils/progress.utils';
+import { verifiedTotals } from '@/utils/verified-progress.utils';
 
 export function ProgressSummary({
-  flagStats,
-  flagHistory,
+  verifiedStats,
+  verifiedHistory,
 }: {
-  flagStats: ServerFlagStats | null;
-  flagHistory: ServerAttempt[];
+  verifiedStats: VerifiedStats;
+  verifiedHistory: ServerAttempt[];
 }) {
   const { t } = useLocale();
   const { profile } = useDemoProfile();
   const localTotals = Object.values(profile.totals || {});
+  const remote = verifiedTotals(verifiedStats);
   const played =
-    localTotals.reduce((sum, item) => sum + item.played, 0) +
-    (flagStats?.played || 0);
+    localTotals.reduce((sum, item) => sum + item.played, 0) + remote.played;
   const correct =
-    localTotals.reduce((sum, item) => sum + item.correct, 0) +
-    (flagStats?.correct || 0);
+    localTotals.reduce((sum, item) => sum + item.correct, 0) + remote.correct;
   const total =
-    localTotals.reduce((sum, item) => sum + item.total, 0) +
-    (flagStats?.played || 0) * 10;
+    localTotals.reduce((sum, item) => sum + item.total, 0) + remote.total;
   const streak = progressStats([
     ...profile.attempts,
-    ...flagHistory.map((item) => ({
+    ...verifiedHistory.map((item) => ({
       completedAt: item.completedAt,
       correct: item.correctAnswers,
       total: item.totalRounds,

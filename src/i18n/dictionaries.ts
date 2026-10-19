@@ -58,9 +58,14 @@ const en = {
   numberSolution: 'How it works',
   flagMinutes: '5–7 min',
   flagSaved: 'Flag results saved',
+  resultSaved: 'Results saved to your profile',
+  cloudRound: 'Result saved when you finish',
+  offlineNotice:
+    'The server is unavailable. This round stays in this browser as a demo.',
+  saveError: 'Could not save this round. Check your connection and try again.',
   flagCloudRound: 'Result saved when you finish',
   flagSavedDescription:
-    'Your Flag Master rounds are saved to your account. Other games are still local demos.',
+    'Flag Master, Geo Challenge and Number IQ rounds are saved to your guest profile when the server is available.',
   flagOfflineNotice:
     'The server is unavailable. This round stays in this browser as a demo.',
   flagSaveError:
@@ -75,7 +80,7 @@ const en = {
   startDaily: 'Take today’s challenge',
   dailyCompleted: 'Today’s challenge complete',
   tomorrow: 'Come back tomorrow for a new pick.',
-  dailyNote: 'Local preview · refreshes at 00:00 UTC',
+  dailyNote: 'Daily pick · refreshes at 00:00 UTC',
   dailyIntro: 'Your daily pick',
   progress: 'Your little victories',
   progressDescription: 'Every game is a chance to surprise yourself.',
@@ -98,7 +103,7 @@ const en = {
   practice: 'Practice',
   dailyMode: 'Daily',
   back: 'Back to games',
-  start: 'Start demo round',
+  start: 'Start round',
   flagStart: 'Start flag round',
   gameIntro:
     'A quick taste of the game. Three questions, a little curiosity, and a new personal best to chase.',
@@ -138,6 +143,10 @@ const en = {
   saved: 'Nickname updated',
   nicknameHint: '2–24 characters',
   history: 'Your recent discoveries',
+  historyPages: 'Discovery pages',
+  previousPage: 'Previous page',
+  nextPage: 'Next page',
+  page: 'Page',
   game: 'Game',
   score: 'Score',
   date: 'Date',
@@ -151,7 +160,7 @@ const en = {
     'Every game has its own leaderboard. Choose a game to explore.',
   rankingEmpty: 'The starting line is open.',
   rankingNote:
-    'Verified leaderboards will open when online games are connected. Local demo scores don’t enter the rankings.',
+    'Public rankings will open with account sign-in. Local demo scores don’t enter the rankings.',
   profileTitle: 'Look how far curiosity takes you.',
   guest: 'Curious player',
   correctAnswers: 'Correct answers',
@@ -159,7 +168,7 @@ const en = {
   about: 'About BrainPlay',
   privacy: 'Privacy',
   privacyText:
-    'This preview stores your language, nickname, and demo results in your browser. No advertising or analytics scripts are loaded. Clearing your browser data removes your progress. Cloud accounts and advertising will be introduced in a later release.',
+    'Language, nickname and demo results stay in this browser. Completed Flag Master, Geo Challenge and Number IQ rounds are saved to a guest profile when the server is available. Clearing browser data removes local progress and access to that guest profile. Inactive guest profiles are deleted after 30 days. No advertising or analytics scripts are loaded.',
   aboutText:
     'BrainPlay is a collection of short games for curious minds. Choose your favourite, practise at your own pace, and enjoy a little discovery every day. This is a frontend preview with sample questions, not an IQ assessment.',
   storageError:
@@ -235,9 +244,14 @@ const ru: Dictionary = {
   numberSolution: 'Как это решается',
   flagMinutes: '5–7 мин',
   flagSaved: 'Результаты «Флагов» сохранены',
+  resultSaved: 'Результаты сохранены в профиле',
+  cloudRound: 'Результат сохранится после завершения',
+  offlineNotice: 'Сервер недоступен. Эта партия останется в браузере как демо.',
+  saveError:
+    'Не удалось сохранить партию. Проверьте соединение и попробуйте ещё раз.',
   flagCloudRound: 'Результат сохранится после завершения',
   flagSavedDescription:
-    'Партии «Флагов» сохранены в аккаунте. Остальные игры пока работают как локальные демо.',
+    'Партии Flag Master, Geo Challenge и Number IQ сохраняются в гостевом профиле, когда сервер доступен.',
   flagOfflineNotice:
     'Сервер недоступен. Эта партия останется в браузере как демо.',
   flagSaveError:
@@ -252,7 +266,7 @@ const ru: Dictionary = {
   startDaily: 'Принять вызов дня',
   dailyCompleted: 'Задание дня пройдено',
   tomorrow: 'Возвращайся завтра за новой игрой.',
-  dailyNote: 'Локальное демо · обновление в 00:00 UTC',
+  dailyNote: 'Игра дня · обновление в 00:00 UTC',
   dailyIntro: 'Твоя игра дня',
   progress: 'Твои маленькие победы',
   progressDescription: 'Каждая игра — повод удивить себя.',
@@ -275,7 +289,7 @@ const ru: Dictionary = {
   practice: 'Тренировка',
   dailyMode: 'Задание дня',
   back: 'К играм',
-  start: 'Начать демо партию',
+  start: 'Начать партию',
   flagStart: 'Начать партию с флагами',
   gameIntro:
     'Короткое знакомство с игрой. Три вопроса, немного любопытства и новый личный рекорд.',
@@ -313,6 +327,10 @@ const ru: Dictionary = {
   saved: 'Никнейм обновлён',
   nicknameHint: 'От 2 до 24 символов',
   history: 'Последние открытия',
+  historyPages: 'Страницы истории игр',
+  previousPage: 'Предыдущая страница',
+  nextPage: 'Следующая страница',
+  page: 'Страница',
   game: 'Игра',
   score: 'Результат',
   date: 'Дата',
@@ -326,7 +344,7 @@ const ru: Dictionary = {
     'У каждой игры свой рейтинг. Выбери интересную тебе игру.',
   rankingEmpty: 'Стартовая линия свободна.',
   rankingNote:
-    'Рейтинги проверенных результатов откроются вместе с онлайн-играми. Локальные деморезультаты в них не участвуют.',
+    'Публичные рейтинги откроются после подключения входа в аккаунт. Локальные деморезультаты в них не участвуют.',
   profileTitle: 'Посмотри, куда ведёт любопытство.',
   guest: 'Любопытный игрок',
   correctAnswers: 'Правильных ответов',
@@ -334,7 +352,7 @@ const ru: Dictionary = {
   about: 'О BrainPlay',
   privacy: 'Конфиденциальность',
   privacyText:
-    'В этой версии язык, никнейм и деморезультаты сохраняются в браузере. Рекламные и аналитические скрипты не загружаются. Очистка данных браузера удалит прогресс. Облачные аккаунты и реклама появятся в следующих версиях.',
+    'Язык, никнейм и деморезультаты хранятся в браузере. Завершённые партии Flag Master, Geo Challenge и Number IQ сохраняются в гостевом профиле, когда сервер доступен. Очистка данных браузера удалит локальный прогресс и доступ к гостевому профилю. Неактивные гостевые профили удаляются через 30 дней. Рекламные и аналитические скрипты не загружаются.',
   aboutText:
     'BrainPlay — короткие игры для любопытных. Выбирай любимую, тренируйся в своём темпе и открывай новое каждый день. Это прототип интерфейса с примерами заданий, а не оценка IQ.',
   storageError:
@@ -409,9 +427,14 @@ const uk: Dictionary = {
   numberSolution: 'Як це розв’язати',
   flagMinutes: '5–7 хв',
   flagSaved: 'Результати «Прапорів» збережено',
+  resultSaved: 'Результати збережено у профілі',
+  cloudRound: 'Результат збережеться після завершення',
+  offlineNotice: 'Сервер недоступний. Ця партія залишиться в браузері як демо.',
+  saveError:
+    'Не вдалося зберегти партію. Перевірте з’єднання та спробуйте ще раз.',
   flagCloudRound: 'Результат збережеться після завершення',
   flagSavedDescription:
-    'Партії «Прапорів» збережено в акаунті. Інші ігри поки працюють як локальні демо.',
+    'Партії Flag Master, Geo Challenge і Number IQ зберігаються у гостьовому профілі, коли сервер доступний.',
   flagOfflineNotice:
     'Сервер недоступний. Ця партія залишиться в браузері як демо.',
   flagSaveError:
@@ -426,7 +449,7 @@ const uk: Dictionary = {
   startDaily: 'Прийняти виклик дня',
   dailyCompleted: 'Завдання дня пройдено',
   tomorrow: 'Повертайся завтра за новою грою.',
-  dailyNote: 'Локальне демо · оновлення о 00:00 UTC',
+  dailyNote: 'Гра дня · оновлення о 00:00 UTC',
   dailyIntro: 'Твоя гра дня',
   progress: 'Твої маленькі перемоги',
   progressDescription: 'Кожна гра — нагода здивувати себе.',
@@ -449,7 +472,7 @@ const uk: Dictionary = {
   practice: 'Тренування',
   dailyMode: 'Завдання дня',
   back: 'До ігор',
-  start: 'Почати демопартію',
+  start: 'Почати партію',
   flagStart: 'Почати партію з прапорами',
   gameIntro:
     'Коротке знайомство з грою. Три запитання, трохи цікавості та новий особистий рекорд.',
@@ -487,6 +510,10 @@ const uk: Dictionary = {
   saved: 'Нікнейм оновлено',
   nicknameHint: 'Від 2 до 24 символів',
   history: 'Останні відкриття',
+  historyPages: 'Сторінки історії ігор',
+  previousPage: 'Попередня сторінка',
+  nextPage: 'Наступна сторінка',
+  page: 'Сторінка',
   game: 'Гра',
   score: 'Результат',
   date: 'Дата',
@@ -499,7 +526,7 @@ const uk: Dictionary = {
   rankingDescription: 'Кожна гра має власний рейтинг. Обери цікаву тобі гру.',
   rankingEmpty: 'Стартова лінія вільна.',
   rankingNote:
-    'Рейтинги перевірених результатів відкриються разом з онлайн-іграми. Локальні деморезультати в них не беруть участі.',
+    'Публічні рейтинги відкриються після підключення входу в акаунт. Локальні деморезультати в них не беруть участі.',
   profileTitle: 'Поглянь, куди веде цікавість.',
   guest: 'Допитливий гравець',
   correctAnswers: 'Правильних відповідей',
@@ -507,7 +534,7 @@ const uk: Dictionary = {
   about: 'Про BrainPlay',
   privacy: 'Конфіденційність',
   privacyText:
-    'У цій версії мова, нікнейм і деморезультати зберігаються в браузері. Рекламні та аналітичні скрипти не завантажуються. Очищення даних браузера видалить прогрес. Хмарні акаунти та реклама з’являться в наступних версіях.',
+    'Мова, нікнейм і деморезультати зберігаються у браузері. Завершені партії Flag Master, Geo Challenge і Number IQ зберігаються у гостьовому профілі, коли сервер доступний. Очищення даних браузера видалить локальний прогрес і доступ до гостьового профілю. Неактивні гостьові профілі видаляються через 30 днів. Рекламні та аналітичні скрипти не завантажуються.',
   aboutText:
     'BrainPlay — короткі ігри для допитливих. Обирай улюблену, тренуйся у своєму темпі та відкривай нове щодня. Це прототип інтерфейсу з прикладами завдань, а не оцінка IQ.',
   storageError:
