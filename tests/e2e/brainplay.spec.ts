@@ -278,6 +278,15 @@ test('server Geo and Number rounds appear in the profile without local copies', 
     ).toBeVisible();
   }
   await expect(page.getByRole('row')).toHaveCount(3);
+  await page
+    .getByRole('button', { name: 'Google linking · coming soon' })
+    .click();
+  await expect(
+    page.getByRole('dialog', { name: 'Connect your guest profile' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Continue with Google' }),
+  ).toBeDisabled();
   expect(
     await page.evaluate(() =>
       localStorage.getItem('brainplay:demo-profile:v1'),
@@ -366,6 +375,9 @@ test('catalog, round, profile persistence, rename and reset', async ({
   await page.goto('/profile');
   await expect(
     page.getByRole('heading', { name: 'Curious player.' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Google linking · coming soon' }),
   ).toBeVisible();
   await page.reload();
   await expect(page.getByText('100%', { exact: true }).first()).toBeVisible();
@@ -656,7 +668,9 @@ test('languages, navigation and honest unavailable sign-in', async ({
   if (testInfo.project.name === 'mobile')
     await page.getByRole('button', { name: 'Открыть меню' }).click();
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.getByRole('button', { name: 'Продолжить с Google' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Продолжить с Google' }),
+  ).toBeDisabled();
   await expect(
     page.getByText(
       'Вход через Google пока не подключён. Можно играть без аккаунта.',
@@ -817,14 +831,20 @@ test('daily is recorded once, unknown route returns 404', async ({ page }) => {
       name: isFlagDay ? 'Start flag round' : 'Start round',
     })
     .click();
-  const isNumberDay =
-    (await page.getByRole('heading', { name: 'Number IQ' }).count()) > 0;
   const isGeoDay =
     (await page.getByRole('heading', { name: 'Geo Challenge' }).count()) > 0;
-  const roundCount = isFlagDay || isNumberDay || isGeoDay ? 10 : 3;
+  const isTimeDay =
+    (await page.getByRole('heading', { name: 'Time Traveler' }).count()) > 0;
+  const roundCount = 10;
   for (let round = 0; round < roundCount; round++) {
     if (isGeoDay)
       await page.locator('path[data-area-id]').first().dispatchEvent('click');
+    else if (isTimeDay)
+      await page
+        .getByRole('region', { name: 'Time Traveler' })
+        .locator('button[aria-pressed="false"]')
+        .first()
+        .click();
     else await page.getByRole('button', { name: /^A/ }).click();
     await page
       .getByRole('button', {

@@ -253,17 +253,15 @@ export default function Profile() {
           </div>
         </div>
         <aside className="min-w-0 space-y-5">
-          {!remote.played && (
-            <section className="flex flex-col items-start gap-5 rounded-2xl border border-primary/15 bg-hero p-6">
-              <div>
-                <h2 className="text-lg font-semibold">{t.saveResult}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {t.localDescription}
-                </p>
-              </div>
-              <SignInDialog />
-            </section>
-          )}
+          <section className="flex flex-col items-start gap-5 rounded-2xl border border-primary/15 bg-hero p-6">
+            <div>
+              <h2 className="text-lg font-semibold">{t.googleLinkTitle}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {t.googleLinkDescription}
+              </p>
+            </div>
+            <SignInDialog profileLink />
+          </section>
           <AdSlot format="rectangle" />
           <DailyCard />
         </aside>

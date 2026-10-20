@@ -1,6 +1,5 @@
 'use client';
 import { ArrowUpRight, Brain } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +13,13 @@ import {
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
-export function SignInDialog({ compact = false }: { compact?: boolean }) {
+export function SignInDialog({
+  compact = false,
+  profileLink = false,
+}: {
+  compact?: boolean;
+  profileLink?: boolean;
+}) {
   const { t } = useLocale();
   return (
     <Dialog>
@@ -22,11 +27,15 @@ export function SignInDialog({ compact = false }: { compact?: boolean }) {
         render={
           <Button
             variant={compact ? 'outline' : 'default'}
-            className="h-11 rounded-xl px-4"
+            className={
+              profileLink
+                ? 'min-h-11 max-w-full rounded-xl px-4 py-2 text-center whitespace-normal'
+                : 'h-11 rounded-xl px-4'
+            }
           />
         }
       >
-        {compact ? t.signIn : t.saveResult}
+        {profileLink ? t.googleLinkAction : compact ? t.signIn : t.saveResult}
         <ArrowUpRight size={15} />
       </DialogTrigger>
       <DialogContent className="p-7 sm:max-w-md">
@@ -35,24 +44,20 @@ export function SignInDialog({ compact = false }: { compact?: boolean }) {
         </span>
         <DialogHeader>
           <DialogTitle className="text-2xl leading-tight">
-            {t.authTitle}
+            {profileLink ? t.googleLinkTitle : t.authTitle}
           </DialogTitle>
           <DialogDescription className="leading-relaxed">
-            {t.authDescription}
+            {profileLink ? t.googleLinkDescription : t.authDescription}
           </DialogDescription>
         </DialogHeader>
-        <Button
-          variant="outline"
-          className="h-12"
-          onClick={() => toast(t.googleSoon)}
-        >
+        <Button variant="outline" className="h-12" disabled>
           <span aria-hidden="true" className="text-lg font-bold">
             G
           </span>
           {t.google}
         </Button>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {t.localDescription}
+          {t.googleSoon}
         </p>
       </DialogContent>
     </Dialog>

@@ -139,6 +139,10 @@ const en = {
   google: 'Continue with Google',
   googleSoon:
     'Google sign-in is not connected yet. You can play without an account.',
+  googleLinkTitle: 'Connect your guest profile',
+  googleLinkDescription:
+    'Google linking is coming soon. Completed online rounds stay in your guest profile; demo rounds stay in this browser.',
+  googleLinkAction: 'Google linking · coming soon',
   authTitle: 'Make room for more discoveries.',
   authDescription:
     'A profile to keep your scores, your streak, and your favourite games together.',
@@ -329,6 +333,10 @@ const ru: Dictionary = {
     'Деморезультаты хранятся на этом устройстве. Google-вход и синхронизацию подключим следующим этапом.',
   google: 'Продолжить с Google',
   googleSoon: 'Вход через Google пока не подключён. Можно играть без аккаунта.',
+  googleLinkTitle: 'Закрепи гостевой профиль',
+  googleLinkDescription:
+    'Привязка к Google скоро появится. Завершённые онлайн-партии хранятся в гостевом профиле, демопартии — только в этом браузере.',
+  googleLinkAction: 'Привязка к Google · скоро',
   authTitle: 'Место для новых открытий.',
   authDescription:
     'Результаты, серии дней и любимые игры — всё в одном профиле.',
@@ -518,6 +526,10 @@ const uk: Dictionary = {
     'Деморезультати зберігаються на цьому пристрої. Google-вхід і синхронізацію підключимо наступним етапом.',
   google: 'Продовжити з Google',
   googleSoon: 'Вхід через Google ще не підключений. Можна грати без акаунта.',
+  googleLinkTitle: 'Закріпи гостьовий профіль',
+  googleLinkDescription:
+    'Прив’язка до Google скоро з’явиться. Завершені онлайн-партії зберігаються в гостьовому профілі, демопартії — лише в цьому браузері.',
+  googleLinkAction: 'Прив’язка до Google · незабаром',
   authTitle: 'Місце для нових відкриттів.',
   authDescription:
     'Результати, серії днів та улюблені ігри — в одному профілі.',
