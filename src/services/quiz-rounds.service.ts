@@ -6,7 +6,10 @@ import { NUMBER_QUESTION_BANK } from '@/services/demo/number-questions';
 
 import type { GameCode, NumberLevel } from '@/shared/types/game.types';
 
-export type QuizGame = Extract<GameCode, 'geo-challenge' | 'number-iq'>;
+export type QuizGame = Extract<
+  GameCode,
+  'geo-challenge' | 'number-iq' | 'time-traveler'
+>;
 export type ServerQuizRound = {
   roundId: string;
   rulesVersion: number;

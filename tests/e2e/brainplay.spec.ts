@@ -6,6 +6,7 @@ import {
   NUMBER_QUESTION_BANK,
   createNumberQuestions,
 } from '../../src/services/demo/number-questions';
+import { timeTravelerQuestionBank } from '../../src/services/demo/time-traveler';
 
 test.beforeEach(async ({ page }) => {
   // The existing UI suite exercises the explicit offline demo path.
@@ -21,11 +22,9 @@ test('Time Traveler reveals dates without opening cards before continuing', asyn
       : { width: 1280, height: 900 },
   );
   await page.goto('/games/time-traveler');
-  await expect(
-    page.getByText('300 illustrated questions · review mode'),
-  ).toBeVisible();
+  await expect(page.getByText('10 illustrated questions')).toBeVisible();
   await page.getByRole('button', { name: 'Start round' }).click();
-  await expect(page.getByText('Round 1 of 300')).toBeVisible();
+  await expect(page.getByText('Round 1 of 10')).toBeVisible();
   const cards = page.locator('button[aria-pressed]');
   const dates = cards.locator(':scope > span:last-child > span:last-child');
   await expect(cards).toHaveCount(4);
@@ -64,7 +63,7 @@ test('Time Traveler reveals dates without opening cards before continuing', asyn
     true,
   );
   for (let question = 2; question <= 3; question++) {
-    await expect(page.getByText(`Round ${question} of 300`)).toBeVisible();
+    await expect(page.getByText(`Round ${question} of 10`)).toBeVisible();
     await cards.first().click();
     if (question < 3)
       await page.getByRole('button', { name: 'Next question' }).click();
@@ -77,6 +76,102 @@ test('Time Traveler reveals dates without opening cards before continuing', asyn
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test('server Time Traveler round saves card IDs and appears in the profile', async ({
+  page,
+}) => {
+  const cors = {
+    'access-control-allow-origin': 'http://localhost:3100',
+    'access-control-allow-credentials': 'true',
+  };
+  const bank = timeTravelerQuestionBank().slice(0, 10);
+  let submitted: string[] = [];
+  await page.unroute('**/api/v1/quiz-rounds/**');
+  await page.route('**/api/v1/quiz-rounds/time-traveler**', (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith('/stats'))
+      return route.fulfill({
+        json: {
+          played: submitted.length ? 1 : 0,
+          correct: submitted.length ? 5 : 0,
+          total: submitted.length ? 10 : 0,
+          bestScore: submitted.length ? 500 : 0,
+          rulesVersion: 5,
+        },
+        headers: cors,
+      });
+    if (path.endsWith('/complete')) {
+      submitted = (route.request().postDataJSON() as { answers: string[] })
+        .answers;
+      return route.fulfill({
+        json: {
+          roundId: 'server-time-traveler',
+          correctAnswers: 5,
+          score: 500,
+          totalRounds: 10,
+          completedAt: '2026-10-19T12:00:00.000Z',
+        },
+        headers: cors,
+      });
+    }
+    return route.fulfill({
+      json: {
+        roundId: 'server-time-traveler',
+        rulesVersion: 5,
+        contentVersion: '1',
+        questions: bank.map((item) => ({ id: item.id })),
+      },
+      headers: cors,
+    });
+  });
+  await page.route('**/game-attempts/me**', (route) =>
+    route.fulfill({
+      json: {
+        items: submitted.length
+          ? [
+              {
+                id: 'server-time-traveler',
+                score: 500,
+                correctAnswers: 5,
+                totalRounds: 10,
+                completedAt: '2026-10-19T12:00:00.000Z',
+                verificationStatus: 'VERIFIED',
+                mode: {
+                  code: 'classic',
+                  rulesVersion: 5,
+                  game: { code: 'time-traveler' },
+                },
+              },
+            ]
+          : [],
+      },
+      headers: cors,
+    }),
+  );
+  await page.goto('/games/time-traveler');
+  await page.getByRole('button', { name: 'Start round' }).click();
+  await expect(page.getByText('Result saved when you finish')).toBeVisible();
+  for (let index = 0; index < 10; index++) {
+    await page.locator('button[aria-pressed]').first().click();
+    await page
+      .getByRole('button', {
+        name: index === 9 ? 'See my result' : 'Next question',
+      })
+      .click();
+  }
+  expect(submitted).toHaveLength(10);
+  expect(
+    submitted.every((answer, index) =>
+      bank[index].cardIds.some((cardId) => cardId === answer),
+    ),
+  ).toBe(true);
+  await page.goto('/profile');
+  await expect(
+    page
+      .getByRole('link', { name: 'Let’s play — Time Traveler' })
+      .getByLabel('Games played: 1'),
+  ).toBeVisible();
 });
 
 test('server Geo and Number rounds appear in the profile without local copies', async ({

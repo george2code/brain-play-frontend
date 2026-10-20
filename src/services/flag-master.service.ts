@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import { API_BASE_URL } from '@/config/api.config';
 
+import { currentRulesVersion } from '@/constants/game-rules.constants';
+
 import { dictionaries } from '@/i18n/dictionaries';
 
 import flagCatalog from '@/services/demo/flags/flags.json';
@@ -109,10 +111,11 @@ export async function readVerifiedHistory(): Promise<ServerAttempt[]> {
     return response.data.items.filter(
       (attempt) =>
         attempt.verificationStatus === 'VERIFIED' &&
-        ['flag-master', 'geo-challenge', 'number-iq'].includes(
+        ['flag-master', 'geo-challenge', 'number-iq', 'time-traveler'].includes(
           attempt.mode.game.code as GameCode,
         ) &&
-        attempt.mode.rulesVersion === 2,
+        attempt.mode.rulesVersion ===
+          currentRulesVersion(attempt.mode.game.code as GameCode),
     );
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 401) return [];

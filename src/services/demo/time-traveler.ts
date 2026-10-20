@@ -3411,42 +3411,38 @@ function seededRandom(value: string): () => number {
 export function createTimeTravelerQuestions(
   dailyDate?: string,
 ): TimeTravelerQuestion[] {
-  const reviewingAll = TIME_TRAVELER_ROUND_SIZE === QUESTION_IDS.length;
-  const random = reviewingAll
-    ? seededRandom('time-traveler:review')
-    : dailyDate
-      ? seededRandom(`time-traveler:${dailyDate}`)
-      : Math.random;
-  let selectedIds: QuestionId[];
-  if (reviewingAll) {
-    selectedIds = [...QUESTION_IDS];
-  } else {
-    const modernIds = shuffle(
-      QUESTION_IDS.filter((id) =>
-        TWENTIETH_CENTURY_CARD_IDS.has(QUESTION_DATA[id].answer),
-      ),
-      random,
-    );
-    const ancientIds = shuffle(
-      QUESTION_IDS.filter((id) =>
-        ANCIENT_CARD_IDS.has(QUESTION_DATA[id].answer),
-      ),
-      random,
-    );
-    selectedIds = [modernIds[0], ancientIds[0]];
-    const usedAnswers = new Set<TimeCardId>(
-      selectedIds.map((id) => QUESTION_DATA[id].answer),
-    );
-    for (const id of shuffle(QUESTION_IDS, random)) {
-      const answer = QUESTION_DATA[id].answer;
-      if (usedAnswers.has(answer)) continue;
-      selectedIds.push(id);
-      usedAnswers.add(answer);
-      if (selectedIds.length === TIME_TRAVELER_ROUND_SIZE) break;
-    }
-    selectedIds = shuffle(selectedIds, random);
+  const random = dailyDate
+    ? seededRandom(`time-traveler:${dailyDate}`)
+    : Math.random;
+  const modernIds = shuffle(
+    QUESTION_IDS.filter((id) =>
+      TWENTIETH_CENTURY_CARD_IDS.has(QUESTION_DATA[id].answer),
+    ),
+    random,
+  );
+  const ancientIds = shuffle(
+    QUESTION_IDS.filter((id) => ANCIENT_CARD_IDS.has(QUESTION_DATA[id].answer)),
+    random,
+  );
+  const selectedIds: QuestionId[] = [modernIds[0], ancientIds[0]];
+  const usedAnswers = new Set<TimeCardId>(
+    selectedIds.map((id) => QUESTION_DATA[id].answer),
+  );
+  for (const id of shuffle(QUESTION_IDS, random)) {
+    const answer = QUESTION_DATA[id].answer;
+    if (usedAnswers.has(answer)) continue;
+    selectedIds.push(id);
+    usedAnswers.add(answer);
+    if (selectedIds.length === TIME_TRAVELER_ROUND_SIZE) break;
   }
-  return selectedIds.map((id) => {
+  return buildTimeTravelerQuestions(shuffle(selectedIds, random), random);
+}
+
+function buildTimeTravelerQuestions(
+  ids: readonly QuestionId[],
+  random: () => number,
+): TimeTravelerQuestion[] {
+  return ids.map((id) => {
     const visualOptions = TIME_TRAVELER_VISUAL_OPTIONS.get(id);
     const cardIds = shuffle(visualOptions ?? QUESTION_DATA[id].cardIds, random);
     return {
@@ -3465,4 +3461,34 @@ export function createTimeTravelerQuestions(
       source: QUESTION_DATA[id].source,
     };
   });
+}
+
+export function timeTravelerQuestionsFromIds(
+  ids: string[],
+  dailyDate?: string,
+): TimeTravelerQuestion[] {
+  if (
+    ids.length !== TIME_TRAVELER_ROUND_SIZE ||
+    new Set(ids).size !== ids.length
+  )
+    throw new Error('Invalid Time Traveler round.');
+  const questionIds = ids.map((id) => {
+    if (!id.startsWith('time-'))
+      throw new Error('Invalid Time Traveler question.');
+    const key = id.slice(5);
+    if (!Object.hasOwn(QUESTION_DATA, key))
+      throw new Error('Unknown Time Traveler question.');
+    return key as QuestionId;
+  });
+  const random = dailyDate
+    ? seededRandom(`time-traveler:${dailyDate}:cards`)
+    : Math.random;
+  return buildTimeTravelerQuestions(questionIds, random);
+}
+
+export function timeTravelerQuestionBank(): TimeTravelerQuestion[] {
+  return buildTimeTravelerQuestions(
+    QUESTION_IDS,
+    seededRandom('time-traveler:catalog'),
+  );
 }

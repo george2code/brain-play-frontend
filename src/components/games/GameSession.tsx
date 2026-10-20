@@ -40,6 +40,7 @@ import { createNumberQuestions } from '@/services/demo/number-questions';
 import {
   type TimeTravelerQuestion,
   createTimeTravelerQuestions,
+  timeTravelerQuestionsFromIds,
 } from '@/services/demo/time-traveler';
 import {
   completeFlagRound,
@@ -129,7 +130,7 @@ export function GameSession({
         total: savedDaily.totalRounds,
         score: savedDaily.score,
         completedAt: savedDaily.completedAt,
-        rulesVersion: 2,
+        rulesVersion: currentRulesVersion(game.code),
       }
     : localDailyResult;
   const isCompletedDaily = !!dailyResult && phase === 'intro';
@@ -151,7 +152,11 @@ export function GameSession({
         setRoundStorage('demo');
       }
     }
-    if (game.code === 'number-iq' || game.code === 'geo-challenge') {
+    if (
+      game.code === 'number-iq' ||
+      game.code === 'geo-challenge' ||
+      game.code === 'time-traveler'
+    ) {
       try {
         const mode = dailyDate
           ? 'daily'
@@ -159,19 +164,28 @@ export function GameSession({
             ? numberLevel
             : 'classic';
         const round = await startQuizRound(game.code, mode);
-        if (round.rulesVersion !== 2 || round.contentVersion !== '1')
+        if (
+          round.rulesVersion !== currentRulesVersion(game.code) ||
+          round.contentVersion !== '1'
+        )
           throw new Error('Unsupported game round.');
         if (game.code === 'number-iq')
           setNumberQuestions(
             numberQuestionsFromIds(round.questions.map((item) => item.id)),
           );
-        else {
+        else if (game.code === 'geo-challenge') {
           const { geoQuestionsFromIds } =
             await import('@/services/demo/geo-questions');
           setGeoQuestions(
             geoQuestionsFromIds(round.questions.map((item) => item.id)),
           );
-        }
+        } else
+          setTimeQuestions(
+            timeTravelerQuestionsFromIds(
+              round.questions.map((item) => item.id),
+              dailyDate,
+            ),
+          );
         setRoundStorage('cloud');
         nextId = round.roundId;
       } catch {
@@ -179,17 +193,13 @@ export function GameSession({
           setNumberQuestions(
             createNumberQuestions(dailyDate ? 'mixed' : numberLevel, dailyDate),
           );
-        else {
+        else if (game.code === 'geo-challenge') {
           const { createGeoQuestions } =
             await import('@/services/demo/geo-questions');
           setGeoQuestions(createGeoQuestions(dailyDate));
-        }
+        } else setTimeQuestions(createTimeTravelerQuestions(dailyDate));
         setRoundStorage('demo');
       }
-    }
-    if (game.code === 'time-traveler') {
-      setTimeQuestions(createTimeTravelerQuestions(dailyDate));
-      setRoundStorage('demo');
     }
     sessionId.current = nextId;
     answers.current = [];
@@ -241,6 +251,15 @@ export function GameSession({
               geoAnswers,
             );
           }
+          if (game.code === 'time-traveler')
+            verifiedResult = await completeQuizRound(
+              game.code,
+              sessionId.current,
+              timeQuestions.map(
+                (item, questionIndex) =>
+                  item.cardIds[answers.current[questionIndex]],
+              ),
+            );
           window.dispatchEvent(new Event(VERIFIED_PROGRESS_EVENT));
         } catch {
           setSaveError(true);
@@ -440,7 +459,7 @@ export function GameSession({
                 {t.roundsHint}
               </p>
             )}
-            {game.code !== 'time-traveler' && roundStorage === 'demo' && (
+            {roundStorage === 'demo' && (
               <p className="mt-2 text-xs text-muted-foreground">
                 {t.offlineNotice}
               </p>

@@ -17,12 +17,14 @@ export type VerifiedStats = {
   'flag-master': ServerFlagStats | null;
   'geo-challenge': ServerQuizStats | null;
   'number-iq': ServerQuizStats | null;
+  'time-traveler': ServerQuizStats | null;
 };
 
 const emptyStats: VerifiedStats = {
   'flag-master': null,
   'geo-challenge': null,
   'number-iq': null,
+  'time-traveler': null,
 };
 
 export function useVerifiedProgress() {
@@ -30,10 +32,11 @@ export function useVerifiedProgress() {
   const query = useQuery({
     queryKey: ['verified-progress'],
     queryFn: async () => {
-      const [flag, geo, number, history] = await Promise.all([
+      const [flag, geo, number, time, history] = await Promise.all([
         readFlagStats().catch(() => null),
         readQuizStats('geo-challenge').catch(() => null),
         readQuizStats('number-iq').catch(() => null),
+        readQuizStats('time-traveler').catch(() => null),
         readVerifiedHistory().catch(() => []),
       ]);
       return {
@@ -41,6 +44,7 @@ export function useVerifiedProgress() {
           'flag-master': flag,
           'geo-challenge': geo,
           'number-iq': number,
+          'time-traveler': time,
         } satisfies VerifiedStats,
         history,
       };

@@ -11,11 +11,13 @@ import {
   TWENTIETH_CENTURY_CARD_IDS,
   createTimeTravelerQuestions,
   timeCardCopy,
+  timeTravelerQuestionBank,
+  timeTravelerQuestionsFromIds,
 } from '../src/services/demo/time-traveler';
 import { TIME_TRAVELER_VISUAL_OPTIONS } from '../src/services/demo/time-traveler-visual-options';
 
-test('Time Traveler review round contains all 300 questions with four cards each', () => {
-  const questions = createTimeTravelerQuestions('2026-10-19');
+test('Time Traveler bank contains all 300 questions with four cards each', () => {
+  const questions = timeTravelerQuestionBank();
   assert.equal(questions.length, 300);
   assert.equal(new Set(questions.map((question) => question.id)).size, 300);
   assert.equal(
@@ -39,12 +41,13 @@ test('Time Traveler review round contains all 300 questions with four cards each
   }
 });
 
-test('Time Traveler review covers 200 answers and its illustrated distractors across eras', () => {
+test('Time Traveler round covers ancient and modern history', () => {
   assert.ok(TWENTIETH_CENTURY_CARD_IDS.size >= 50);
   assert.ok(ANCIENT_CARD_IDS.size >= 50);
   assert.ok(TWENTIETH_CENTURY_CARD_IDS.has('ussr1991'));
   assert.ok(ANCIENT_CARD_IDS.has('tiwanaku'));
   const questions = createTimeTravelerQuestions();
+  assert.equal(questions.length, 10);
   const answers = questions.map(
     (question) => question.cardIds[question.answer],
   );
@@ -68,7 +71,7 @@ test('Time Traveler review covers 200 answers and its illustrated distractors ac
 });
 
 test('all unreviewed questions and flagged visual clues use thematic options', () => {
-  const questions = createTimeTravelerQuestions();
+  const questions = timeTravelerQuestionBank();
   for (const question of questions.slice(174)) {
     assert.ok(
       TIME_TRAVELER_VISUAL_OPTIONS.has(question.id.slice(5)),
@@ -92,13 +95,17 @@ test('all unreviewed questions and flagged visual clues use thematic options', (
   }
 });
 
-test('Time Traveler review order stays stable between sessions and dates', () => {
+test('Time Traveler daily selection and server IDs stay stable', () => {
   assert.deepEqual(
     createTimeTravelerQuestions('2026-10-19'),
     createTimeTravelerQuestions('2026-10-19'),
   );
+  const ids = createTimeTravelerQuestions('2026-10-19').map((item) => item.id);
+  const fromServer = timeTravelerQuestionsFromIds(ids, '2026-10-19');
   assert.deepEqual(
-    createTimeTravelerQuestions(),
-    createTimeTravelerQuestions('2026-10-20'),
+    fromServer.map((item) => item.id),
+    ids,
   );
+  assert.deepEqual(fromServer, timeTravelerQuestionsFromIds(ids, '2026-10-19'));
+  assert.throws(() => timeTravelerQuestionsFromIds([...ids.slice(1), ids[1]]));
 });

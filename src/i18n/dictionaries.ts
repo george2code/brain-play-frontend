@@ -110,8 +110,8 @@ const en = {
   timeIntro:
     'Explore history through illustrated cards. Every answer reveals a date and a little story.',
   timeRules:
-    'Temporary review mode: all 300 questions in one round. Choose a card, study the dates and story, then continue.',
-  timeRoundSize: '300 illustrated questions · review mode',
+    'Ten questions from 300 illustrated stories. Choose a card, study the dates and story, then continue. Each correct answer earns 100 points.',
+  timeRoundSize: '10 illustrated questions',
   timeFact: 'A little history',
   flagGameIntro:
     'Ten flags from around the world. Discover a little history with every answer.',
@@ -302,8 +302,8 @@ const ru: Dictionary = {
   timeIntro:
     'Исследуй историю через иллюстрированные карточки. Каждый ответ откроет даты и любопытную деталь.',
   timeRules:
-    'Временный режим просмотра: все 300 вопросов в одной партии. Выбери карточку, изучи даты и историю, затем двигайся дальше.',
-  timeRoundSize: '300 вопросов с иллюстрациями · режим просмотра',
+    'Десять вопросов из 300 историй с иллюстрациями. Выбери карточку, изучи даты и любопытную деталь, затем двигайся дальше. За правильный ответ — 100 очков.',
+  timeRoundSize: '10 вопросов с иллюстрациями',
   timeFact: 'Любопытная деталь',
   flagGameIntro:
     'Десять флагов со всего мира. После каждого ответа узнаешь немного об их истории.',
@@ -491,8 +491,8 @@ const uk: Dictionary = {
   timeIntro:
     'Досліджуй історію через ілюстровані картки. Кожна відповідь відкриє дати й цікаву деталь.',
   timeRules:
-    'Тимчасовий режим перегляду: усі 300 запитань в одній партії. Обери картку, роздивись дати й історію, а потім рухайся далі.',
-  timeRoundSize: '300 запитань з ілюстраціями · режим перегляду',
+    'Десять запитань із 300 ілюстрованих історій. Обери картку, роздивись дати й цікаву деталь, а потім рухайся далі. За правильну відповідь — 100 очок.',
+  timeRoundSize: '10 запитань з ілюстраціями',
   timeFact: 'Цікава деталь',
   flagGameIntro:
     'Десять прапорів з усього світу. Після кожної відповіді дізнаєшся трохи про їхню історію.',

@@ -117,11 +117,12 @@ test('two ten-question Geo Challenge rounds survive reading and rewriting local 
   });
 });
 
-test('Time Traveler keeps prior results during the 300-question review round', () => {
-  assert.equal(currentRulesVersion('time-traveler'), 4);
+test('Time Traveler keeps prior results after returning to ten-question rounds', () => {
+  assert.equal(currentRulesVersion('time-traveler'), 5);
   assert.equal(roundSizeFor('time-traveler', 2), 4);
   assert.equal(roundSizeFor('time-traveler', 3), 10);
   assert.equal(roundSizeFor('time-traveler', 4), 300);
+  assert.equal(roundSizeFor('time-traveler', 5), 10);
   const previous = attempt({
     id: 'time-previous',
     game: 'time-traveler',

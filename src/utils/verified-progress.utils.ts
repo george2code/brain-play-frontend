@@ -7,7 +7,7 @@ import type { ServerAttempt } from '@/services/flag-master.service';
 import type { DemoAttempt, GameCode } from '@/shared/types/game.types';
 
 export function verifiedStatsForGame(stats: VerifiedStats, game: GameCode) {
-  return game === 'time-traveler' ? null : stats[game];
+  return stats[game];
 }
 
 export function verifiedTotals(stats: VerifiedStats) {
