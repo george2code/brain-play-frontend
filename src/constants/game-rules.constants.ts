@@ -1,9 +1,15 @@
 import type { GameCode } from '@/shared/types/game.types';
 
+// Temporary full-bank review; restore ten-question rounds after content review.
+export const TIME_TRAVELER_ROUND_SIZE = 300;
+
 const GAME_RULES = {
   'geo-challenge': { currentVersion: 2, rounds: { 1: 3, 2: 10 } },
   'number-iq': { currentVersion: 2, rounds: { 1: 3, 2: 10 } },
-  'time-traveler': { currentVersion: 2, rounds: { 1: 3, 2: 4 } },
+  'time-traveler': {
+    currentVersion: 4,
+    rounds: { 1: 3, 2: 4, 3: 10, 4: TIME_TRAVELER_ROUND_SIZE },
+  },
   'flag-master': { currentVersion: 2, rounds: { 1: 3, 2: 10 } },
 } as const satisfies Record<
   GameCode,

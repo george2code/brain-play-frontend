@@ -21,7 +21,11 @@ test('Time Traveler reveals dates without opening cards before continuing', asyn
       : { width: 1280, height: 900 },
   );
   await page.goto('/games/time-traveler');
+  await expect(
+    page.getByText('300 illustrated questions · review mode'),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Start round' }).click();
+  await expect(page.getByText('Round 1 of 300')).toBeVisible();
   const cards = page.locator('button[aria-pressed]');
   const dates = cards.locator(':scope > span:last-child > span:last-child');
   await expect(cards).toHaveCount(4);
@@ -59,6 +63,15 @@ test('Time Traveler reveals dates without opening cards before continuing', asyn
   expect((await dates.allTextContents()).every((date) => !date.trim())).toBe(
     true,
   );
+  for (let question = 2; question <= 3; question++) {
+    await expect(page.getByText(`Round ${question} of 300`)).toBeVisible();
+    await cards.first().click();
+    if (question < 3)
+      await page.getByRole('button', { name: 'Next question' }).click();
+  }
+  await expect(
+    page.getByRole('button', { name: 'Next question' }),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

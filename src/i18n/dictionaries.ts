@@ -110,8 +110,8 @@ const en = {
   timeIntro:
     'Explore history through illustrated cards. Every answer reveals a date and a little story.',
   timeRules:
-    'Four discoveries per round. Choose one card, then take your time with the dates and story before moving on.',
-  timeRoundSize: '4 illustrated questions per round',
+    'Temporary review mode: all 300 questions in one round. Choose a card, study the dates and story, then continue.',
+  timeRoundSize: '300 illustrated questions · review mode',
   timeFact: 'A little history',
   flagGameIntro:
     'Ten flags from around the world. Discover a little history with every answer.',
@@ -302,8 +302,8 @@ const ru: Dictionary = {
   timeIntro:
     'Исследуй историю через иллюстрированные карточки. Каждый ответ откроет даты и любопытную деталь.',
   timeRules:
-    'Четыре открытия за партию. Выбери одну карточку, рассмотри даты и историю, а затем двигайся дальше.',
-  timeRoundSize: '4 вопроса с иллюстрациями за партию',
+    'Временный режим просмотра: все 300 вопросов в одной партии. Выбери карточку, изучи даты и историю, затем двигайся дальше.',
+  timeRoundSize: '300 вопросов с иллюстрациями · режим просмотра',
   timeFact: 'Любопытная деталь',
   flagGameIntro:
     'Десять флагов со всего мира. После каждого ответа узнаешь немного об их истории.',
@@ -491,8 +491,8 @@ const uk: Dictionary = {
   timeIntro:
     'Досліджуй історію через ілюстровані картки. Кожна відповідь відкриє дати й цікаву деталь.',
   timeRules:
-    'Чотири відкриття за партію. Обери одну картку, роздивись дати й історію, а потім рухайся далі.',
-  timeRoundSize: '4 запитання з ілюстраціями за партію',
+    'Тимчасовий режим перегляду: усі 300 запитань в одній партії. Обери картку, роздивись дати й історію, а потім рухайся далі.',
+  timeRoundSize: '300 запитань з ілюстраціями · режим перегляду',
   timeFact: 'Цікава деталь',
   flagGameIntro:
     'Десять прапорів з усього світу. Після кожної відповіді дізнаєшся трохи про їхню історію.',
@@ -861,6 +861,80 @@ export const timeTravelerContent = {
       ussr1991: { title: 'End of the Soviet Union', dates: '1991' },
       beijing1995: { title: "Beijing Women's Conference", dates: '1995' },
       dolly1996: { title: 'Dolly the Sheep', dates: 'born 1996' },
+      liverpool1830: {
+        title: 'Liverpool–Manchester Railway',
+        dates: 'opened 1830',
+      },
+      tokyo1964: { title: 'Tokyo Olympic Games', dates: '1964' },
+      transcontinental1915: {
+        title: 'Transcontinental telephone call',
+        dates: '1915',
+      },
+      transatlantic1927: {
+        title: 'Transatlantic telephone call',
+        dates: '1927',
+      },
+      segoviaAqueduct: { title: 'Segovia Aqueduct', dates: 'Roman era' },
+      tarragonaAqueduct: { title: 'Les Ferreres Aqueduct', dates: 'Roman era' },
+      elvasAqueduct: {
+        title: 'Amoreira Aqueduct',
+        dates: 'late 16th–early 17th century',
+      },
+      epidaurusTheatre: {
+        title: 'Theatre of Epidaurus',
+        dates: '4th century BCE',
+      },
+      benz1886: { title: 'Benz Patent-Motorwagen', dates: '1886' },
+      beetle1945: {
+        title: 'Volkswagen Beetle',
+        dates: 'mass production from 1945',
+      },
+      mini1959: { title: 'Classic Mini', dates: 'launched 1959' },
+      scott1912: {
+        title: 'Scott’s South Pole expedition',
+        dates: 'reached the pole in 1912',
+      },
+      mawson1911: {
+        title: 'Mawson’s Antarctic expedition',
+        dates: '1911–1914',
+      },
+      shackleton1914: {
+        title: 'Shackleton’s Endurance expedition',
+        dates: '1914–1917',
+      },
+      charlesBalloon1783: {
+        title: 'Charles’s hydrogen balloon',
+        dates: '1783',
+      },
+      blanchardBalloon1785: {
+        title: 'Balloon crossing of the Channel',
+        dates: '1785',
+      },
+      zeppelin1900: { title: 'First Zeppelin flight', dates: '1900' },
+      oscars1929: { title: 'First Academy Awards', dates: '1929' },
+      pulitzer1917: { title: 'First Pulitzer Prizes', dates: '1917' },
+      fields1936: { title: 'First Fields Medals', dates: '1936' },
+      panic1907: { title: 'Panic of 1907', dates: '1907' },
+      blackMonday1987: { title: 'Black Monday', dates: '1987' },
+      crisis2008: { title: 'Global financial crisis', dates: '2007–2009' },
+      kamakuraSamurai: { title: 'Kamakura samurai', dates: '1185–1333 CE' },
+      sengokuSamurai: {
+        title: 'Sengoku samurai',
+        dates: '15th–16th centuries CE',
+      },
+      edoSamurai: { title: 'Edo-period samurai', dates: '1603–1868 CE' },
+      merian1705: { title: 'Merian’s insect studies', dates: 'published 1705' },
+      wallace1854: { title: 'Wallace’s Malay expedition', dates: '1854–1862' },
+      mendel1865: { title: 'Mendel’s pea experiments', dates: 'reported 1865' },
+      tgv1981: { title: 'French TGV', dates: 'service began 1981' },
+      ice1991: { title: 'German ICE', dates: 'service began 1991' },
+      eurostar1994: { title: 'Eurostar', dates: 'service began 1994' },
+      dynatac1984: {
+        title: 'DynaTAC handheld phone',
+        dates: 'commercially available 1984',
+      },
+      vodafone1985: { title: 'First Vodafone mobile call', dates: '1985' },
+      sms1992: { title: 'First SMS message', dates: '1992' },
     },
     questions: {
       clay: {
@@ -2267,7 +2341,8 @@ export const timeTravelerContent = {
         fact: 'Delegates met in Beijing to agree on goals for equality and opportunity.',
       },
       dollyClone: {
-        prompt: 'Which sheep was the first mammal cloned from an adult cell?',
+        prompt:
+          'Which 1996 breakthrough showed that an adult cell could be used to clone a mammal?',
         fact: "Dolly was born at Scotland's Roslin Institute in July 1996.",
       },
       monteAlbanPlaza: {
@@ -2618,6 +2693,89 @@ export const timeTravelerContent = {
       ussr1991: { title: 'Кінець Радянського Союзу', dates: '1991 р.' },
       beijing1995: { title: 'Пекінська конференція жінок', dates: '1995 р.' },
       dolly1996: { title: 'Вівця Доллі', dates: 'народилася 1996 р.' },
+      liverpool1830: {
+        title: 'Залізниця Ліверпуль — Манчестер',
+        dates: 'відкрита 1830 р.',
+      },
+      tokyo1964: { title: 'Олімпійські ігри в Токіо', dates: '1964 р.' },
+      transcontinental1915: {
+        title: 'Трансконтинентальний телефонний дзвінок',
+        dates: '1915 р.',
+      },
+      transatlantic1927: {
+        title: 'Трансатлантичний телефонний дзвінок',
+        dates: '1927 р.',
+      },
+      segoviaAqueduct: { title: 'Акведук Сеговії', dates: 'римська доба' },
+      tarragonaAqueduct: {
+        title: 'Акведук Лес-Ферререс',
+        dates: 'римська доба',
+      },
+      elvasAqueduct: {
+        title: 'Акведук Аморейра',
+        dates: 'кінець XVI — початок XVII ст.',
+      },
+      epidaurusTheatre: { title: 'Театр Епідавра', dates: 'IV ст. до н. е.' },
+      benz1886: { title: 'Автомобіль Бенца', dates: '1886 р.' },
+      beetle1945: {
+        title: 'Volkswagen Beetle',
+        dates: 'серійне виробництво з 1945 р.',
+      },
+      mini1959: { title: 'Класичний Mini', dates: 'представлений 1959 р.' },
+      scott1912: {
+        title: 'Експедиція Скотта до Південного полюса',
+        dates: 'досягла полюса 1912 р.',
+      },
+      mawson1911: {
+        title: 'Антарктична експедиція Моусона',
+        dates: '1911–1914 рр.',
+      },
+      shackleton1914: {
+        title: 'Експедиція Шеклтона на «Ендюранс»',
+        dates: '1914–1917 рр.',
+      },
+      charlesBalloon1783: { title: 'Воднева куля Шарля', dates: '1783 р.' },
+      blanchardBalloon1785: {
+        title: 'Переліт протоки Ла-Манш на кулі',
+        dates: '1785 р.',
+      },
+      zeppelin1900: { title: 'Перший політ цепеліна', dates: '1900 р.' },
+      oscars1929: { title: 'Перша церемонія «Оскара»', dates: '1929 р.' },
+      pulitzer1917: { title: 'Перші Пулітцерівські премії', dates: '1917 р.' },
+      fields1936: { title: 'Перші медалі Філдса', dates: '1936 р.' },
+      panic1907: { title: 'Фінансова паніка 1907 року', dates: '1907 р.' },
+      blackMonday1987: { title: '«Чорний понеділок»', dates: '1987 р.' },
+      crisis2008: { title: 'Світова фінансова криза', dates: '2007–2009 рр.' },
+      kamakuraSamurai: {
+        title: 'Самураї періоду Камакура',
+        dates: '1185–1333 рр.',
+      },
+      sengokuSamurai: { title: 'Самураї періоду Сенґоку', dates: 'XV–XVI ст.' },
+      edoSamurai: { title: 'Самураї періоду Едо', dates: '1603–1868 рр.' },
+      merian1705: {
+        title: 'Дослідження комах Меріан',
+        dates: 'опубліковані 1705 р.',
+      },
+      wallace1854: {
+        title: 'Малайська експедиція Воллеса',
+        dates: '1854–1862 рр.',
+      },
+      mendel1865: {
+        title: 'Досліди Менделя з горохом',
+        dates: 'представлені 1865 р.',
+      },
+      tgv1981: { title: 'Французький TGV', dates: 'початок руху 1981 р.' },
+      ice1991: { title: 'Німецький ICE', dates: 'початок руху 1991 р.' },
+      eurostar1994: { title: 'Eurostar', dates: 'початок руху 1994 р.' },
+      dynatac1984: {
+        title: 'Мобільний телефон DynaTAC',
+        dates: 'у продажу з 1984 р.',
+      },
+      vodafone1985: {
+        title: 'Перший мобільний дзвінок Vodafone',
+        dates: '1985 р.',
+      },
+      sms1992: { title: 'Перше SMS-повідомлення', dates: '1992 р.' },
     },
     questions: {
       clay: {
@@ -4011,7 +4169,7 @@ export const timeTravelerContent = {
       },
       dollyClone: {
         prompt:
-          'Яка вівця стала першим ссавцем, клонованим із дорослої клітини?',
+          'Яке досягнення 1996 року показало, що дорослу клітину можна використати для клонування ссавця?',
         fact: 'Доллі народилася в шотландському Інституті Рослін у липні 1996 року.',
       },
       monteAlbanPlaza: {
@@ -4361,6 +4519,92 @@ export const timeTravelerContent = {
       ussr1991: { title: 'Конец Советского Союза', dates: '1991 г.' },
       beijing1995: { title: 'Пекинская конференция женщин', dates: '1995 г.' },
       dolly1996: { title: 'Овца Долли', dates: 'родилась в 1996 г.' },
+      liverpool1830: {
+        title: 'Железная дорога Ливерпуль — Манчестер',
+        dates: 'открыта в 1830 г.',
+      },
+      tokyo1964: { title: 'Олимпийские игры в Токио', dates: '1964 г.' },
+      transcontinental1915: {
+        title: 'Трансконтинентальный телефонный звонок',
+        dates: '1915 г.',
+      },
+      transatlantic1927: {
+        title: 'Трансатлантический телефонный звонок',
+        dates: '1927 г.',
+      },
+      segoviaAqueduct: { title: 'Акведук Сеговии', dates: 'римская эпоха' },
+      tarragonaAqueduct: {
+        title: 'Акведук Лес-Ферререс',
+        dates: 'римская эпоха',
+      },
+      elvasAqueduct: {
+        title: 'Акведук Аморейра',
+        dates: 'конец XVI — начало XVII в.',
+      },
+      epidaurusTheatre: { title: 'Театр Эпидавра', dates: 'IV в. до н. э.' },
+      benz1886: { title: 'Автомобиль Бенца', dates: '1886 г.' },
+      beetle1945: {
+        title: 'Volkswagen Beetle',
+        dates: 'серийное производство с 1945 г.',
+      },
+      mini1959: { title: 'Классический Mini', dates: 'представлен в 1959 г.' },
+      scott1912: {
+        title: 'Экспедиция Скотта к Южному полюсу',
+        dates: 'достигла полюса в 1912 г.',
+      },
+      mawson1911: {
+        title: 'Антарктическая экспедиция Моусона',
+        dates: '1911–1914 гг.',
+      },
+      shackleton1914: {
+        title: 'Экспедиция Шеклтона на «Эндьюранс»',
+        dates: '1914–1917 гг.',
+      },
+      charlesBalloon1783: { title: 'Водородный шар Шарля', dates: '1783 г.' },
+      blanchardBalloon1785: {
+        title: 'Перелёт Ла-Манша на воздушном шаре',
+        dates: '1785 г.',
+      },
+      zeppelin1900: { title: 'Первый полёт цеппелина', dates: '1900 г.' },
+      oscars1929: { title: 'Первая церемония «Оскара»', dates: '1929 г.' },
+      pulitzer1917: { title: 'Первые Пулитцеровские премии', dates: '1917 г.' },
+      fields1936: { title: 'Первые медали Филдса', dates: '1936 г.' },
+      panic1907: { title: 'Финансовая паника 1907 года', dates: '1907 г.' },
+      blackMonday1987: { title: '«Чёрный понедельник»', dates: '1987 г.' },
+      crisis2008: {
+        title: 'Мировой финансовый кризис',
+        dates: '2007–2009 гг.',
+      },
+      kamakuraSamurai: {
+        title: 'Самураи периода Камакура',
+        dates: '1185–1333 гг.',
+      },
+      sengokuSamurai: { title: 'Самураи периода Сэнгоку', dates: 'XV–XVI вв.' },
+      edoSamurai: { title: 'Самураи периода Эдо', dates: '1603–1868 гг.' },
+      merian1705: {
+        title: 'Исследования насекомых Мериан',
+        dates: 'опубликованы в 1705 г.',
+      },
+      wallace1854: {
+        title: 'Малайская экспедиция Уоллеса',
+        dates: '1854–1862 гг.',
+      },
+      mendel1865: {
+        title: 'Опыты Менделя с горохом',
+        dates: 'представлены в 1865 г.',
+      },
+      tgv1981: { title: 'Французский TGV', dates: 'начало движения в 1981 г.' },
+      ice1991: { title: 'Немецкий ICE', dates: 'начало движения в 1991 г.' },
+      eurostar1994: { title: 'Eurostar', dates: 'начало движения в 1994 г.' },
+      dynatac1984: {
+        title: 'Мобильный телефон DynaTAC',
+        dates: 'в продаже с 1984 г.',
+      },
+      vodafone1985: {
+        title: 'Первый мобильный звонок Vodafone',
+        dates: '1985 г.',
+      },
+      sms1992: { title: 'Первое SMS-сообщение', dates: '1992 г.' },
     },
     questions: {
       clay: {
@@ -5771,7 +6015,7 @@ export const timeTravelerContent = {
       },
       dollyClone: {
         prompt:
-          'Какая овца стала первым млекопитающим, клонированным из взрослой клетки?',
+          'Какое достижение 1996 года показало, что взрослую клетку можно использовать для клонирования млекопитающего?',
         fact: 'Долли родилась в шотландском Институте Рослин в июле 1996 года.',
       },
       monteAlbanPlaza: {

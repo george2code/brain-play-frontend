@@ -1,3 +1,5 @@
+import { TIME_TRAVELER_ROUND_SIZE } from '@/constants/game-rules.constants';
+
 import { timeTravelerContent } from '@/i18n/dictionaries';
 
 import type {
@@ -5,6 +7,8 @@ import type {
   Locale,
   Localized,
 } from '@/shared/types/game.types';
+
+import { TIME_TRAVELER_VISUAL_OPTIONS } from './time-traveler-visual-options';
 
 export const TIME_CARD_IDS = [
   'sumer',
@@ -207,6 +211,41 @@ export const TIME_CARD_IDS = [
   'ussr1991',
   'beijing1995',
   'dolly1996',
+  'liverpool1830',
+  'tokyo1964',
+  'transcontinental1915',
+  'transatlantic1927',
+  'segoviaAqueduct',
+  'tarragonaAqueduct',
+  'elvasAqueduct',
+  'epidaurusTheatre',
+  'benz1886',
+  'beetle1945',
+  'mini1959',
+  'scott1912',
+  'mawson1911',
+  'shackleton1914',
+  'charlesBalloon1783',
+  'blanchardBalloon1785',
+  'zeppelin1900',
+  'oscars1929',
+  'pulitzer1917',
+  'fields1936',
+  'panic1907',
+  'blackMonday1987',
+  'crisis2008',
+  'kamakuraSamurai',
+  'sengokuSamurai',
+  'edoSamurai',
+  'merian1705',
+  'wallace1854',
+  'mendel1865',
+  'tgv1981',
+  'ice1991',
+  'eurostar1994',
+  'dynatac1984',
+  'vodafone1985',
+  'sms1992',
 ] as const;
 export type TimeCardId = (typeof TIME_CARD_IDS)[number];
 
@@ -1183,6 +1222,169 @@ export const TIME_CARDS: Record<TimeCardId, { image: string; source: string }> =
     dolly1996: {
       image: '/time-traveler/dolly-1996.webp',
       source: 'https://vet.ed.ac.uk/roslin/about/history/dolly',
+    },
+    liverpool1830: {
+      image: '/time-traveler/liverpool-1830.webp',
+      source:
+        'https://blog.railwaymuseum.org.uk/railway-heritage-designation-advisory-board/',
+    },
+    tokyo1964: {
+      image: '/time-traveler/tokyo-1964.webp',
+      source:
+        'https://library.olympics.com/Default/basicfilesdownload.ashx?itemGuid=2ECE9BE9-EA5F-4F0F-97DF-84C75B6BC60A',
+    },
+    transcontinental1915: {
+      image: '/time-traveler/telephone-1915.webp',
+      source:
+        'https://about.att.com/story/2026/150-years-first-telephone-call.html',
+    },
+    transatlantic1927: {
+      image: '/time-traveler/telephone-1927.webp',
+      source:
+        'https://about.att.com/story/2026/150-years-first-telephone-call.html',
+    },
+    segoviaAqueduct: {
+      image: '/time-traveler/segovia-aqueduct.webp',
+      source: 'https://whc.unesco.org/en/list/311',
+    },
+    tarragonaAqueduct: {
+      image: '/time-traveler/tarragona-aqueduct.webp',
+      source: 'https://whc.unesco.org/en/list/875',
+    },
+    elvasAqueduct: {
+      image: '/time-traveler/elvas-aqueduct.webp',
+      source: 'https://whc.unesco.org/en/list/1367',
+    },
+    epidaurusTheatre: {
+      image: '/time-traveler/epidaurus-theatre.webp',
+      source: 'https://whc.unesco.org/en/list/491',
+    },
+    benz1886: {
+      image: '/time-traveler/benz-1886.webp',
+      source:
+        'https://group.mercedes-benz.com/company/tradition/company-history/1885-1886.html',
+    },
+    beetle1945: {
+      image: '/time-traveler/beetle-1945.webp',
+      source:
+        'https://www.volkswagen-newsroom.com/en/press-releases/75-years-ago-in-wolfsburg-start-of-series-production-of-the-volkswagen-beetle-6732',
+    },
+    mini1959: {
+      image: '/time-traveler/mini-1959.webp',
+      source:
+        'https://www.mini.com/en_MS/home/heritage/1959-the-mini-was-born.html',
+    },
+    scott1912: {
+      image: '/time-traveler/scott-1912.webp',
+      source:
+        'https://www.rmg.co.uk/stories/maritime-history/race-south-pole-scott-amundsen',
+    },
+    mawson1911: {
+      image: '/time-traveler/mawson-1911.webp',
+      source:
+        'https://www.nma.gov.au/defining-moments/resources/mawson-in-the-antarctic',
+    },
+    shackleton1914: {
+      image: '/time-traveler/shackleton-1914.webp',
+      source:
+        'https://www.rmg.co.uk/stories/maritime-history/sir-ernest-shackleton',
+    },
+    charlesBalloon1783: {
+      image: '/time-traveler/charles-balloon-1783.webp',
+      source:
+        'https://airandspace.si.edu/collection-objects/ascension-montgolfier-balloon/nasm_A19370051000',
+    },
+    blanchardBalloon1785: {
+      image: '/time-traveler/blanchard-balloon-1785.webp',
+      source:
+        'https://airandspace.si.edu/collection-archive/george-walpole-3rd-earl-orford-letter-regarding-early-ballooning/sova-nasm-xxxx-0995',
+    },
+    zeppelin1900: {
+      image: '/time-traveler/zeppelin-1900.webp',
+      source:
+        'https://www.zeppelin-museum.de/uploads/20241018_PM_ZM_Zeppelin_Kalender_2025_28910d75e5.pdf',
+    },
+    oscars1929: {
+      image: '/time-traveler/oscars-1929.webp',
+      source: 'https://www.oscars.org/oscars/ceremonies/1929',
+    },
+    pulitzer1917: {
+      image: '/time-traveler/pulitzer-1917.webp',
+      source: 'https://www.pulitzer.org/prize-winners-by-year/1917',
+    },
+    fields1936: {
+      image: '/time-traveler/fields-1936.webp',
+      source:
+        'https://www.mathunion.org/imu-awards/imu-awards-prizes-and-special-lecture',
+    },
+    panic1907: {
+      image: '/time-traveler/panic-1907.webp',
+      source: 'https://www.federalreservehistory.org/essays/panic-of-1907',
+    },
+    blackMonday1987: {
+      image: '/time-traveler/black-monday-1987.webp',
+      source:
+        'https://www.federalreservehistory.org/essays/stock-market-crash-of-1987',
+    },
+    crisis2008: {
+      image: '/time-traveler/crisis-2008.webp',
+      source:
+        'https://www.federalreservehistory.org/essays/great-recession-and-its-aftermath',
+    },
+    kamakuraSamurai: {
+      image: '/time-traveler/kamakura-samurai.webp',
+      source:
+        'https://www.metmuseum.org/exhibitions/listings/2009/art-of-the-samurai/photo-gallery',
+    },
+    sengokuSamurai: {
+      image: '/time-traveler/sengoku-samurai.webp',
+      source: 'https://www.metmuseum.org/art/collection/search/22505',
+    },
+    edoSamurai: {
+      image: '/time-traveler/edo-samurai.webp',
+      source: 'https://www.metmuseum.org/toah/ht/09/eaj.html',
+    },
+    merian1705: {
+      image: '/time-traveler/merian-1705.webp',
+      source:
+        'https://www.nhm.ac.uk/discover/maria-sibylla-merian-metamorphosis-art-and-science.html',
+    },
+    wallace1854: {
+      image: '/time-traveler/wallace-1854.webp',
+      source:
+        'https://www.nhm.ac.uk/discover/who-was-alfred-russel-wallace.html',
+    },
+    mendel1865: {
+      image: '/time-traveler/mendel-1865.webp',
+      source:
+        'https://www.nature.com/scitable/topicpage/gregor-mendel-a-private-scientist-6618227/',
+    },
+    tgv1981: {
+      image: '/time-traveler/tgv-1981.webp',
+      source:
+        'https://www.sncf-voyageurs.com/en/travel-with-us/in-france/news/45-years-of-high-speed-travel-and-still-one-step-ahead/',
+    },
+    ice1991: {
+      image: '/time-traveler/ice-1991.webp',
+      source: 'https://www.deutschebahn.com/de/1991-ICE-1-7033058',
+    },
+    eurostar1994: {
+      image: '/time-traveler/eurostar-1994.webp',
+      source:
+        'https://press.eurostar.com/section/about-us/our-story/?country=UK&lang=eng',
+    },
+    dynatac1984: {
+      image: '/time-traveler/dynatac-1984.webp',
+      source: 'https://americanhistory.si.edu/collections/object/nmah_1191361',
+    },
+    vodafone1985: {
+      image: '/time-traveler/vodafone-1985.webp',
+      source: 'https://www.vodafone.com/our-company/our-history',
+    },
+    sms1992: {
+      image: '/time-traveler/sms-1992.webp',
+      source:
+        'https://www.vodafone.com/news/newsroom/technology/25-anniversary-text-message',
     },
   };
 
@@ -3209,32 +3411,44 @@ function seededRandom(value: string): () => number {
 export function createTimeTravelerQuestions(
   dailyDate?: string,
 ): TimeTravelerQuestion[] {
-  const random = dailyDate
-    ? seededRandom(`time-traveler:${dailyDate}`)
-    : Math.random;
-  const modernIds = shuffle(
-    QUESTION_IDS.filter((id) =>
-      TWENTIETH_CENTURY_CARD_IDS.has(QUESTION_DATA[id].answer),
-    ),
-    random,
-  );
-  const ancientIds = shuffle(
-    QUESTION_IDS.filter((id) => ANCIENT_CARD_IDS.has(QUESTION_DATA[id].answer)),
-    random,
-  );
-  const selectedIds: QuestionId[] = [modernIds[0], ancientIds[0]];
-  const usedAnswers = new Set<TimeCardId>(
-    selectedIds.map((id) => QUESTION_DATA[id].answer),
-  );
-  for (const id of shuffle(QUESTION_IDS, random)) {
-    const answer = QUESTION_DATA[id].answer;
-    if (usedAnswers.has(answer)) continue;
-    selectedIds.push(id);
-    usedAnswers.add(answer);
-    if (selectedIds.length === 4) break;
+  const reviewingAll = TIME_TRAVELER_ROUND_SIZE === QUESTION_IDS.length;
+  const random = reviewingAll
+    ? seededRandom('time-traveler:review')
+    : dailyDate
+      ? seededRandom(`time-traveler:${dailyDate}`)
+      : Math.random;
+  let selectedIds: QuestionId[];
+  if (reviewingAll) {
+    selectedIds = [...QUESTION_IDS];
+  } else {
+    const modernIds = shuffle(
+      QUESTION_IDS.filter((id) =>
+        TWENTIETH_CENTURY_CARD_IDS.has(QUESTION_DATA[id].answer),
+      ),
+      random,
+    );
+    const ancientIds = shuffle(
+      QUESTION_IDS.filter((id) =>
+        ANCIENT_CARD_IDS.has(QUESTION_DATA[id].answer),
+      ),
+      random,
+    );
+    selectedIds = [modernIds[0], ancientIds[0]];
+    const usedAnswers = new Set<TimeCardId>(
+      selectedIds.map((id) => QUESTION_DATA[id].answer),
+    );
+    for (const id of shuffle(QUESTION_IDS, random)) {
+      const answer = QUESTION_DATA[id].answer;
+      if (usedAnswers.has(answer)) continue;
+      selectedIds.push(id);
+      usedAnswers.add(answer);
+      if (selectedIds.length === TIME_TRAVELER_ROUND_SIZE) break;
+    }
+    selectedIds = shuffle(selectedIds, random);
   }
-  return shuffle(selectedIds, random).map((id) => {
-    const cardIds = shuffle(QUESTION_DATA[id].cardIds, random);
+  return selectedIds.map((id) => {
+    const visualOptions = TIME_TRAVELER_VISUAL_OPTIONS.get(id);
+    const cardIds = shuffle(visualOptions ?? QUESTION_DATA[id].cardIds, random);
     return {
       id: `time-${id}`,
       prompt: localized(

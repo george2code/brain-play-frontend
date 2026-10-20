@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import {
+  currentRulesVersion,
+  roundSizeFor,
+} from '../src/constants/game-rules.constants';
 import { createFlagQuestions } from '../src/services/demo/flags/flag-questions';
 import flagCatalog from '../src/services/demo/flags/flags.json';
 import {
@@ -110,6 +114,52 @@ test('two ten-question Geo Challenge rounds survive reading and rewriting local 
     correct: 14,
     total: 23,
     bestScore: 700,
+  });
+});
+
+test('Time Traveler keeps prior results during the 300-question review round', () => {
+  assert.equal(currentRulesVersion('time-traveler'), 4);
+  assert.equal(roundSizeFor('time-traveler', 2), 4);
+  assert.equal(roundSizeFor('time-traveler', 3), 10);
+  assert.equal(roundSizeFor('time-traveler', 4), 300);
+  const previous = attempt({
+    id: 'time-previous',
+    game: 'time-traveler',
+    correct: 3,
+    total: 4,
+    score: 300,
+    rulesVersion: 2,
+  });
+  const current = attempt({
+    id: 'time-current',
+    game: 'time-traveler',
+    correct: 8,
+    total: 10,
+    score: 800,
+    rulesVersion: 3,
+  });
+  const review = attempt({
+    id: 'time-review',
+    game: 'time-traveler',
+    correct: 250,
+    total: 300,
+    score: 25000,
+    rulesVersion: 4,
+  });
+  const restored = parseProfile(
+    JSON.stringify(
+      addAttempt(
+        addAttempt(addAttempt(EMPTY_PROFILE, previous), current),
+        review,
+      ),
+    ),
+  );
+  assert.equal(restored.attempts.length, 3);
+  assert.deepEqual(gameStats(restored, 'time-traveler'), {
+    played: 3,
+    correct: 261,
+    total: 314,
+    bestScore: 25000,
   });
 });
 test('streak counts unique UTC days, survives yesterday and expires after a missed day', () => {

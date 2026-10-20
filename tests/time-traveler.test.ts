@@ -12,15 +12,16 @@ import {
   createTimeTravelerQuestions,
   timeCardCopy,
 } from '../src/services/demo/time-traveler';
+import { TIME_TRAVELER_VISUAL_OPTIONS } from '../src/services/demo/time-traveler-visual-options';
 
-test('Time Traveler questions have four reusable cards and one answer', () => {
+test('Time Traveler review round contains all 300 questions with four cards each', () => {
   const questions = createTimeTravelerQuestions('2026-10-19');
-  assert.equal(questions.length, 4);
-  assert.equal(new Set(questions.map((question) => question.id)).size, 4);
+  assert.equal(questions.length, 300);
+  assert.equal(new Set(questions.map((question) => question.id)).size, 300);
   assert.equal(
     new Set(questions.map((question) => question.cardIds[question.answer]))
       .size,
-    4,
+    200,
   );
   for (const question of questions) {
     assert.equal(question.cardIds.length, 4);
@@ -38,48 +39,66 @@ test('Time Traveler questions have four reusable cards and one answer', () => {
   }
 });
 
-test('Time Traveler bank rotates through 300 questions and 200 illustrated cards across eras', () => {
+test('Time Traveler review covers 200 answers and its illustrated distractors across eras', () => {
   assert.ok(TWENTIETH_CENTURY_CARD_IDS.size >= 50);
   assert.ok(ANCIENT_CARD_IDS.size >= 50);
   assert.ok(TWENTIETH_CENTURY_CARD_IDS.has('ussr1991'));
   assert.ok(ANCIENT_CARD_IDS.has('tiwanaku'));
-  const questionIds = new Set<string>();
-  const correctCardIds = new Set<string>();
-  for (let day = 0; day < 365; day++) {
-    const date = new Date(Date.UTC(2026, 0, day + 1))
-      .toISOString()
-      .slice(0, 10);
-    const questions = createTimeTravelerQuestions(date);
-    const answers = questions.map(
-      (question) => question.cardIds[question.answer],
-    );
-    assert.ok(answers.some((answer) => TWENTIETH_CENTURY_CARD_IDS.has(answer)));
-    assert.ok(answers.some((answer) => ANCIENT_CARD_IDS.has(answer)));
-    for (const question of questions) {
-      questionIds.add(question.id);
-      correctCardIds.add(question.cardIds[question.answer]);
-      for (const locale of ['en', 'uk', 'ru'] as const) {
-        assert.ok(question.prompt[locale]);
-        assert.ok(question.factAfter?.[locale]);
-      }
+  const questions = createTimeTravelerQuestions();
+  const answers = questions.map(
+    (question) => question.cardIds[question.answer],
+  );
+  assert.ok(answers.some((answer) => TWENTIETH_CENTURY_CARD_IDS.has(answer)));
+  assert.ok(answers.some((answer) => ANCIENT_CARD_IDS.has(answer)));
+  for (const question of questions) {
+    for (const locale of ['en', 'uk', 'ru'] as const) {
+      assert.ok(question.prompt[locale]);
+      assert.ok(question.factAfter?.[locale]);
     }
   }
   assert.equal(TIME_TRAVELER_QUESTION_COUNT, 300);
-  assert.equal(TIME_CARD_IDS.length, 200);
+  assert.equal(TIME_CARD_IDS.length, 235);
   assert.equal(
     new Set(Object.values(TIME_CARDS).map((card) => card.image)).size,
-    200,
+    235,
   );
-  assert.ok(questionIds.size >= 280);
-  assert.ok(correctCardIds.size >= 180);
   for (const card of Object.values(TIME_CARDS)) {
     assert.ok(existsSync(join(process.cwd(), 'public', card.image.slice(1))));
   }
 });
 
-test('daily Time Traveler order is stable', () => {
+test('all unreviewed questions and flagged visual clues use thematic options', () => {
+  const questions = createTimeTravelerQuestions();
+  for (const question of questions.slice(174)) {
+    assert.ok(
+      TIME_TRAVELER_VISUAL_OPTIONS.has(question.id.slice(5)),
+      question.id,
+    );
+  }
+  for (const id of [
+    'romeAqueduct',
+    'shinkansenRoute',
+    'bellTelephone',
+    'mexicoOlympics',
+    'fordModelT',
+    'amundsenPole',
+  ]) {
+    const question = questions.find((item) => item.id === `time-${id}`);
+    assert.ok(question, id);
+    assert.deepEqual(
+      new Set(question.cardIds),
+      new Set(TIME_TRAVELER_VISUAL_OPTIONS.get(id)),
+    );
+  }
+});
+
+test('Time Traveler review order stays stable between sessions and dates', () => {
   assert.deepEqual(
     createTimeTravelerQuestions('2026-10-19'),
     createTimeTravelerQuestions('2026-10-19'),
+  );
+  assert.deepEqual(
+    createTimeTravelerQuestions(),
+    createTimeTravelerQuestions('2026-10-20'),
   );
 });
