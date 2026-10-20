@@ -3,7 +3,7 @@ import type { GameCode } from '@/shared/types/game.types';
 const GAME_RULES = {
   'geo-challenge': { currentVersion: 2, rounds: { 1: 3, 2: 10 } },
   'number-iq': { currentVersion: 2, rounds: { 1: 3, 2: 10 } },
-  'time-traveler': { currentVersion: 1, rounds: { 1: 3 } },
+  'time-traveler': { currentVersion: 2, rounds: { 1: 3, 2: 4 } },
   'flag-master': { currentVersion: 2, rounds: { 1: 3, 2: 10 } },
 } as const satisfies Record<
   GameCode,

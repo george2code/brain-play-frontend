@@ -12,6 +12,60 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/v1/quiz-rounds/**', (route) => route.abort());
 });
 
+test('Time Traveler reveals dates without opening cards before continuing', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize(
+    testInfo.project.name === 'mobile'
+      ? { width: 390, height: 844 }
+      : { width: 1280, height: 900 },
+  );
+  await page.goto('/games/time-traveler');
+  await page.getByRole('button', { name: 'Start round' }).click();
+  const cards = page.locator('button[aria-pressed]');
+  const dates = cards.locator(':scope > span:last-child > span:last-child');
+  await expect(cards).toHaveCount(4);
+  expect((await dates.allTextContents()).every((date) => !date.trim())).toBe(
+    true,
+  );
+  await cards.first().click();
+  expect((await dates.allTextContents()).every((date) => date.trim())).toBe(
+    true,
+  );
+  await expect(page.getByText('A little history')).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Next question' }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      cards
+        .locator('img')
+        .evaluateAll((images) =>
+          images.every(
+            (image) =>
+              (image as HTMLImageElement).complete &&
+              (image as HTMLImageElement).naturalWidth > 0,
+          ),
+        ),
+    )
+    .toBe(true);
+  await page.screenshot({
+    path: testInfo.outputPath('time-traveler-reveal.png'),
+    fullPage: true,
+  });
+  await expect(cards.first()).toBeDisabled();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Next question' }).click();
+  expect((await dates.allTextContents()).every((date) => !date.trim())).toBe(
+    true,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
 test('server Geo and Number rounds appear in the profile without local copies', async ({
   page,
 }) => {

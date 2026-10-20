@@ -112,6 +112,8 @@ export function GameCard({
                 t.numberRoundSize
               ) : game.code === 'geo-challenge' ? (
                 t.geoRoundSize
+              ) : game.code === 'time-traveler' ? (
+                t.timeRoundSize
               ) : (
                 t.quickRound
               )}

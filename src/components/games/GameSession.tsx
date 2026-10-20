@@ -16,6 +16,7 @@ import { SignInDialog } from '@/components/auth/SignInDialog';
 import { GameArtwork } from '@/components/games/GameArtwork';
 import { GameRecommendations } from '@/components/games/GameRecommendations';
 import { QuestionVisual } from '@/components/games/QuestionVisual';
+import { TimeTravelerChoices } from '@/components/games/TimeTravelerChoices';
 import { AdSlot } from '@/components/shared/AdSlot';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -34,9 +35,12 @@ import { useLocale } from '@/i18n/LocaleProvider';
 
 import { cn } from '@/lib/utils';
 
-import { DEMO_QUESTIONS } from '@/services/demo/demo.questions';
 import { createFlagQuestions } from '@/services/demo/flags/flag-questions';
 import { createNumberQuestions } from '@/services/demo/number-questions';
+import {
+  type TimeTravelerQuestion,
+  createTimeTravelerQuestions,
+} from '@/services/demo/time-traveler';
 import {
   completeFlagRound,
   serverRoundToQuestions,
@@ -78,6 +82,9 @@ export function GameSession({
   const [flagQuestions, setFlagQuestions] = useState<DemoQuestion[]>([]);
   const [numberQuestions, setNumberQuestions] = useState<DemoQuestion[]>([]);
   const [geoQuestions, setGeoQuestions] = useState<GeoQuestion[]>([]);
+  const [timeQuestions, setTimeQuestions] = useState<TimeTravelerQuestion[]>(
+    [],
+  );
   const [numberLevel, setNumberLevel] = useState<NumberLevel>('mixed');
   const [roundStorage, setRoundStorage] = useState<'cloud' | 'demo'>('demo');
   const [starting, setStarting] = useState(false);
@@ -93,10 +100,12 @@ export function GameSession({
         ? numberQuestions
         : game.code === 'geo-challenge'
           ? geoQuestions
-          : DEMO_QUESTIONS[game.code];
+          : timeQuestions;
   const question = questions[index];
   const geoQuestion =
     game.code === 'geo-challenge' ? (question as GeoQuestion) : null;
+  const timeQuestion =
+    game.code === 'time-traveler' ? (question as TimeTravelerQuestion) : null;
   const localDailyResult = dailyDate
     ? profile.attempts.find(
         (a) => a.mode === 'daily' && a.dailyDate === dailyDate,
@@ -177,6 +186,10 @@ export function GameSession({
         }
         setRoundStorage('demo');
       }
+    }
+    if (game.code === 'time-traveler') {
+      setTimeQuestions(createTimeTravelerQuestions(dailyDate));
+      setRoundStorage('demo');
     }
     sessionId.current = nextId;
     answers.current = [];
@@ -280,7 +293,9 @@ export function GameSession({
                   ? t.numberRoundSize
                   : game.code === 'geo-challenge'
                     ? t.geoRoundSize
-                    : t.demoNotice
+                    : game.code === 'time-traveler'
+                      ? t.timeRoundSize
+                      : t.demoNotice
               : isCloudResult
                 ? phase === 'playing'
                   ? t.cloudRound
@@ -305,7 +320,9 @@ export function GameSession({
                     ? t.numberIntro
                     : game.code === 'geo-challenge'
                       ? t.geoIntro
-                      : t.gameIntro}
+                      : game.code === 'time-traveler'
+                        ? t.timeIntro
+                        : t.gameIntro}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 {game.code === 'flag-master'
@@ -314,7 +331,9 @@ export function GameSession({
                     ? t.numberRules
                     : game.code === 'geo-challenge'
                       ? t.geoRules
-                      : t.demoRules}
+                      : game.code === 'time-traveler'
+                        ? t.timeRules
+                        : t.demoRules}
               </p>
               {game.code === 'number-iq' && !dailyDate && (
                 <div className="mt-6">
@@ -392,9 +411,9 @@ export function GameSession({
                   correct={geoQuestion.answer}
                   onSelect={setSelected}
                 />
-              ) : (
+              ) : !timeQuestion ? (
                 <QuestionVisual visual={question.visual} />
-              )}
+              ) : null}
               {question.factBefore && (
                 <div className="mt-4 rounded-2xl bg-flag/70 px-5 py-4 text-sm leading-relaxed text-foreground">
                   <p>{question.factBefore[locale]}</p>
@@ -416,7 +435,7 @@ export function GameSession({
                 </div>
               )}
             </div>
-            {selected === null && !geoQuestion && (
+            {selected === null && !geoQuestion && !timeQuestion && (
               <p className="mt-3 text-sm text-muted-foreground">
                 {t.roundsHint}
               </p>
@@ -426,7 +445,14 @@ export function GameSession({
                 {t.offlineNotice}
               </p>
             )}
-            {!geoQuestion && (
+            {timeQuestion ? (
+              <TimeTravelerChoices
+                key={timeQuestion.id}
+                question={timeQuestion}
+                selected={selected}
+                onSelect={setSelected}
+              />
+            ) : !geoQuestion ? (
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {question.options.map((option, answer) => (
                   <Button
@@ -454,7 +480,7 @@ export function GameSession({
                   </Button>
                 ))}
               </div>
-            )}
+            ) : null}
             <div
               className={cn('mt-7', !geoQuestion && 'min-h-24')}
               aria-live="polite"
@@ -497,6 +523,24 @@ export function GameSession({
                       <p className="whitespace-pre-line text-sm leading-relaxed">
                         {question.explanation[locale]}
                       </p>
+                    </div>
+                  )}
+                  {timeQuestion?.factAfter && (
+                    <div className="mb-4 rounded-2xl bg-time/70 px-5 py-4 text-left text-time-ink">
+                      <p className="mb-1 text-sm font-semibold">{t.timeFact}</p>
+                      <p className="text-sm leading-relaxed">
+                        {timeQuestion.factAfter[locale]}
+                      </p>
+                      {timeQuestion.source && (
+                        <a
+                          href={timeQuestion.source}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block text-xs font-semibold underline underline-offset-2"
+                        >
+                          {t.flagSource}
+                        </a>
+                      )}
                     </div>
                   )}
                   {saveError && (

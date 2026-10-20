@@ -24,6 +24,9 @@
   --number-ink: #75609b;
   --time: #faedce;
   --time-ink: #a97427;
+  --time-card-frame: #f6b000;
+  --time-card-frame-hover: #e6a200;
+  --time-card-hover: #fff5df;
   --flag: #e5edf8;
   --flag-ink: #527eb2;
   --peach: #e0a37f;
@@ -61,6 +64,9 @@
   --color-number-ink: var(--number-ink);
   --color-time: var(--time);
   --color-time-ink: var(--time-ink);
+  --color-time-card-frame: var(--time-card-frame);
+  --color-time-card-frame-hover: var(--time-card-frame-hover);
+  --color-time-card-hover: var(--time-card-hover);
   --color-flag: var(--flag);
   --color-flag-ink: var(--flag-ink);
   --color-peach: var(--peach);

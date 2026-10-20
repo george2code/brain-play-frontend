@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { GAMES } from '../src/constants/games.constants';
-import { DEMO_QUESTIONS } from '../src/services/demo/demo.questions';
 import { createFlagQuestions } from '../src/services/demo/flags/flag-questions';
 import flagCatalog from '../src/services/demo/flags/flags.json';
 import {
@@ -133,20 +131,6 @@ test('daily pick is deterministic and rotates through all four games', () => {
   );
   assert.equal(codes.size, 4);
   assert.equal(dailyGame('2026-10-15').code, dailyGame('2026-10-15').code);
-});
-test('Time Traveler has three fully translated valid questions', () => {
-  for (const game of GAMES.filter((game) => game.code === 'time-traveler')) {
-    assert.equal(DEMO_QUESTIONS[game.code].length, 3);
-    for (const question of DEMO_QUESTIONS[game.code]) {
-      assert.ok(
-        question.answer >= 0 && question.answer < question.options.length,
-      );
-      for (const locale of ['en', 'uk', 'ru'] as const) {
-        assert.ok(question.prompt[locale]);
-        assert.ok(question.options.every((option) => option[locale]));
-      }
-    }
-  }
 });
 test('Number IQ has 300 distinct, explained puzzles across three difficulties', () => {
   assert.equal(NUMBER_QUESTION_BANK.length, 300);

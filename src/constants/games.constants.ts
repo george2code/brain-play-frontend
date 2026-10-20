@@ -33,9 +33,9 @@ export const GAMES: GameDefinition[] = [
     color: 'time',
     category: { en: 'History', uk: 'Історія', ru: 'История' },
     description: {
-      en: 'Big moments. Different eras. Put history in its place.',
-      uk: 'Великі події, різні епохи. Розстав історію по місцях.',
-      ru: 'Большие события, разные эпохи. Расставь историю по местам.',
+      en: 'Explore beautiful scenes, answer one question, and uncover a little story from the past.',
+      uk: 'Роздивляйся історичні сцени, відповідай на запитання й відкривай історії минулого.',
+      ru: 'Рассматривай исторические сцены, отвечай на вопрос и открывай истории прошлого.',
     },
   },
   {
