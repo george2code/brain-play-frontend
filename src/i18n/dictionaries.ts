@@ -1,4 +1,10 @@
-import type { Locale } from '@/shared/types/game.types';
+import type { GameCode, Locale } from '@/shared/types/game.types';
+
+export const brand = {
+  name: 'QuizRoam',
+  prefix: 'quiz',
+  suffix: 'roam',
+} as const;
 
 const en = {
   games: 'Games',
@@ -145,7 +151,7 @@ const en = {
   googleLinkAction: 'Connect Google',
   googleConnecting: 'Opening Google…',
   googlePrivacy:
-    'Only your identity and email are requested. BrainPlay does not access your Gmail.',
+    'Only your identity and email are requested. QuizRoam does not access your Gmail.',
   googleSuccess: 'Google connected. Your online progress is saved.',
   googleError: 'Could not complete the request. Please try again.',
   googleConnected: 'Google account connected',
@@ -185,12 +191,13 @@ const en = {
   guest: 'Curious player',
   correctAnswers: 'Correct answers',
   comingSoon: 'Coming next',
-  about: 'About BrainPlay',
+  about: 'About QuizRoam',
+  faq: 'Questions & answers',
   privacy: 'Privacy',
   privacyText:
     'Language, nickname and demo results stay in this browser. Completed Flag Master, Geo Challenge and Number IQ rounds are saved to a guest profile when the server is available. Clearing browser data removes local progress and access to that guest profile. Inactive guest profiles are deleted after 30 days. No advertising or analytics scripts are loaded.',
   aboutText:
-    'BrainPlay is a collection of short games for curious minds. Choose your favourite, practise at your own pace, and enjoy a little discovery every day. This is a frontend preview with sample questions, not an IQ assessment.',
+    'QuizRoam is a collection of short games for curious minds. Choose your favourite, practise at your own pace, and enjoy a little discovery every day. This is a frontend preview with sample questions, not an IQ assessment.',
   storageError:
     'Browser storage is unavailable. Progress will only last for this visit.',
   loading: 'Getting things ready…',
@@ -349,7 +356,7 @@ const ru: Dictionary = {
   googleLinkAction: 'Привязать Google',
   googleConnecting: 'Открываем Google…',
   googlePrivacy:
-    'Запрашиваем только данные профиля и email. Доступа к Gmail у BrainPlay нет.',
+    'Запрашиваем только данные профиля и email. Доступа к Gmail у QuizRoam нет.',
   googleSuccess: 'Google подключён. Онлайн-прогресс сохранён.',
   googleError: 'Не удалось выполнить запрос. Попробуй ещё раз.',
   googleConnected: 'Google-аккаунт подключён',
@@ -389,12 +396,13 @@ const ru: Dictionary = {
   guest: 'Любопытный игрок',
   correctAnswers: 'Правильных ответов',
   comingSoon: 'Скоро',
-  about: 'О BrainPlay',
+  about: 'О QuizRoam',
+  faq: 'Вопросы и ответы',
   privacy: 'Конфиденциальность',
   privacyText:
     'Язык, никнейм и деморезультаты хранятся в браузере. Завершённые партии Flag Master, Geo Challenge и Number IQ сохраняются в гостевом профиле, когда сервер доступен. Очистка данных браузера удалит локальный прогресс и доступ к гостевому профилю. Неактивные гостевые профили удаляются через 30 дней. Рекламные и аналитические скрипты не загружаются.',
   aboutText:
-    'BrainPlay — короткие игры для любопытных. Выбирай любимую, тренируйся в своём темпе и открывай новое каждый день. Это прототип интерфейса с примерами заданий, а не оценка IQ.',
+    'QuizRoam — короткие игры для любопытных. Выбирай любимую, тренируйся в своём темпе и открывай новое каждый день. Это прототип интерфейса с примерами заданий, а не оценка IQ.',
   storageError:
     'Хранилище браузера недоступно. Прогресс сохранится только до закрытия страницы.',
   loading: 'Готовим всё к игре…',
@@ -552,7 +560,7 @@ const uk: Dictionary = {
   googleLinkAction: 'Підключити Google',
   googleConnecting: 'Відкриваємо Google…',
   googlePrivacy:
-    'Запитуємо лише дані профілю та email. BrainPlay не має доступу до Gmail.',
+    'Запитуємо лише дані профілю та email. QuizRoam не має доступу до Gmail.',
   googleSuccess: 'Google підключено. Онлайн-прогрес збережено.',
   googleError: 'Не вдалося виконати запит. Спробуй ще раз.',
   googleConnected: 'Google-акаунт підключено',
@@ -591,12 +599,13 @@ const uk: Dictionary = {
   guest: 'Допитливий гравець',
   correctAnswers: 'Правильних відповідей',
   comingSoon: 'Незабаром',
-  about: 'Про BrainPlay',
+  about: 'Про QuizRoam',
+  faq: 'Запитання та відповіді',
   privacy: 'Конфіденційність',
   privacyText:
     'Мова, нікнейм і деморезультати зберігаються у браузері. Завершені партії Flag Master, Geo Challenge і Number IQ зберігаються у гостьовому профілі, коли сервер доступний. Очищення даних браузера видалить локальний прогрес і доступ до гостьового профілю. Неактивні гостьові профілі видаляються через 30 днів. Рекламні та аналітичні скрипти не завантажуються.',
   aboutText:
-    'BrainPlay — короткі ігри для допитливих. Обирай улюблену, тренуйся у своєму темпі та відкривай нове щодня. Це прототип інтерфейсу з прикладами завдань, а не оцінка IQ.',
+    'QuizRoam — короткі ігри для допитливих. Обирай улюблену, тренуйся у своєму темпі та відкривай нове щодня. Це прототип інтерфейсу з прикладами завдань, а не оцінка IQ.',
   storageError:
     'Сховище браузера недоступне. Прогрес збережеться лише до закриття сторінки.',
   loading: 'Готуємо все до гри…',
@@ -612,6 +621,301 @@ const uk: Dictionary = {
     'Перша завершена партія — твій результат дня. Тренуватися можна скільки завгодно.',
 };
 export const dictionaries: Record<Locale, Dictionary> = { en, uk, ru };
+
+type FaqItem = { question: string; answer: string };
+type FaqCopy = {
+  title: string;
+  description: string;
+  navigation: string;
+  generalTitle: string;
+  general: FaqItem[];
+  games: Record<GameCode, FaqItem[]>;
+};
+
+export const faqCopy: Record<Locale, FaqCopy> = {
+  en: {
+    title: 'Frequently asked questions',
+    description:
+      'How to play all four QuizRoam games, understand the rules, and keep track of your progress.',
+    navigation: 'Jump to a topic',
+    generalTitle: 'Getting started & progress',
+    general: [
+      {
+        question: 'Do I need an account to play?',
+        answer:
+          'You can play without an account. When the server is available, completed rounds are saved to a guest profile. Where Google sign-in is available, you can connect your guest profile to keep your online progress across devices.',
+      },
+      {
+        question: 'What happens when the server is unavailable?',
+        answer:
+          'The game offers a local demo round and tells you when this happens. Completed demo rounds stay in this browser. They are not uploaded as verified results and do not enter the leaderboard.',
+      },
+      {
+        question: 'How does the Daily Challenge work?',
+        answer:
+          'A game is selected for the day and refreshes at 00:00 UTC. Your first completed daily round is your result for that day. You can keep practising through the regular game pages.',
+      },
+    ],
+    games: {
+      'flag-master': [
+        {
+          question: 'How do I play Flag Master?',
+          answer:
+            'Look at the flag and choose its country from four answers. Each round contains 10 different flags drawn from a catalogue of 195 countries.',
+        },
+        {
+          question: 'How are points awarded? Is there a timer?',
+          answer:
+            'Each correct answer earns 100 points, for a maximum of 1,000 points per round. There is no timer, so you can take time to study each flag.',
+        },
+        {
+          question: 'Can I learn from a wrong answer?',
+          answer:
+            'Yes. After answering, you see the correct country and can read facts about it. Read the explanation, then move to the next question when you are ready.',
+        },
+      ],
+      'geo-challenge': [
+        {
+          question: 'How do I answer a Geo Challenge question?',
+          answer:
+            'Read the place name, then tap or click its outline on the map. Each round contains 10 map questions and has no timer.',
+        },
+        {
+          question: 'Which places appear on the maps?',
+          answer:
+            'Rounds cover Africa, Asia, Europe, North America, South America, Oceania and U.S. states. The map view changes to fit the area being explored.',
+        },
+        {
+          question: 'How can I tell which place was correct?',
+          answer:
+            'After you answer, the map highlights the correct place in green. If your choice was wrong, your selected place is also marked so you can compare them.',
+        },
+      ],
+      'number-iq': [
+        {
+          question: 'What do I need to find in Number IQ?',
+          answer:
+            'Find the rule connecting the numbers, then choose the missing number. The gap can appear at the beginning, in the middle or at the end of a sequence. Each round has 10 puzzles.',
+        },
+        {
+          question: 'Can I choose the difficulty?',
+          answer:
+            'Yes. Regular rounds offer Easy, Medium, Challenge and Mixed. Mixed combines difficulty levels. There is no timer, so you can work through the pattern at your own pace.',
+        },
+        {
+          question: 'Will I see how the answer was worked out?',
+          answer:
+            'After every answer, the game shows the rule and a short calculation. Your game score reflects your answers in that round; it is not a standardised IQ measurement.',
+        },
+      ],
+      'time-traveler': [
+        {
+          question: 'How do I play Time Traveler?',
+          answer:
+            'Read the history question, examine the illustrated cards and choose one answer. Each round contains 10 questions from a bank of 300 historical stories.',
+        },
+        {
+          question: 'When do the dates and historical facts appear?',
+          answer:
+            'After you choose a card, the dates on all the cards are revealed along with a historical fact. You can study them before continuing to the next question.',
+        },
+        {
+          question: 'How is my Time Traveler score calculated?',
+          answer:
+            'Each correct answer earns 100 points, for a maximum of 1,000 points across 10 questions. The round ends after the final question, when you can view your result.',
+        },
+      ],
+    },
+  },
+  uk: {
+    title: 'Часті запитання',
+    description:
+      'Як грати в чотири гри QuizRoam, розібратися в правилах і стежити за своїм прогресом.',
+    navigation: 'Перейти до теми',
+    generalTitle: 'Початок гри та прогрес',
+    general: [
+      {
+        question: 'Чи потрібен акаунт для гри?',
+        answer:
+          'Можна грати без акаунта. Коли сервер доступний, завершені партії зберігаються в гостьовому профілі. Якщо вхід через Google доступний, можна підключити гостьовий профіль і зберігати онлайн-прогрес між пристроями.',
+      },
+      {
+        question: 'Що відбувається, коли сервер недоступний?',
+        answer:
+          'Гра пропонує локальну демопартію та повідомляє про це. Завершені демопартії залишаються в цьому браузері. Вони не завантажуються як перевірені результати й не потрапляють до рейтингу.',
+      },
+      {
+        question: 'Як працює щоденне випробування?',
+        answer:
+          'Гра дня оновлюється о 00:00 UTC. Перша завершена щоденна партія — твій результат за цей день. Тренуватися далі можна на звичайних сторінках ігор.',
+      },
+    ],
+    games: {
+      'flag-master': [
+        {
+          question: 'Як грати у Flag Master?',
+          answer:
+            'Роздивись прапор і вибери його країну з чотирьох варіантів. У кожній партії — 10 різних прапорів із каталогу 195 країн.',
+        },
+        {
+          question: 'Як нараховуються бали? Чи є таймер?',
+          answer:
+            'Кожна правильна відповідь приносить 100 балів, максимум — 1 000 за партію. Таймера немає, тож можна уважно роздивитися кожен прапор.',
+        },
+        {
+          question: 'Чи можна навчитися на помилковій відповіді?',
+          answer:
+            'Так. Після відповіді ти побачиш правильну країну та зможеш прочитати факти про неї. Ознайомся з поясненням і переходь до наступного запитання, коли будеш готовий.',
+        },
+      ],
+      'geo-challenge': [
+        {
+          question: 'Як відповісти на запитання Geo Challenge?',
+          answer:
+            'Прочитай назву місця та натисни на його контур на мапі. Кожна партія містить 10 запитань із мапами. Таймера немає.',
+        },
+        {
+          question: 'Які місця трапляються на мапах?',
+          answer:
+            'Партії охоплюють Африку, Азію, Європу, Північну та Південну Америку, Океанію і штати США. Вид мапи змінюється відповідно до місцевості, яку ти досліджуєш.',
+        },
+        {
+          question: 'Як побачити правильне місце?',
+          answer:
+            'Після відповіді правильне місце виділяється зеленим. Якщо ти помилився, вибране місце теж буде позначене, щоб можна було їх порівняти.',
+        },
+      ],
+      'number-iq': [
+        {
+          question: 'Що потрібно знайти в Number IQ?',
+          answer:
+            'Знайди правило, яке пов’язує числа, і вибери пропущене число. Пропуск може бути на початку, посередині або наприкінці послідовності. У кожній партії — 10 завдань.',
+        },
+        {
+          question: 'Чи можна вибрати складність?',
+          answer:
+            'Так. У звичайних партіях доступні рівні «Легко», «Середньо», «Складніше» і «Різна». «Різна» поєднує різні рівні складності. Таймера немає, тож можна розв’язувати у власному темпі.',
+        },
+        {
+          question: 'Чи буде пояснення розв’язку?',
+          answer:
+            'Після кожної відповіді гра показує правило й коротке обчислення. Ігровий рахунок відображає відповіді в цій партії та не є стандартизованим вимірюванням IQ.',
+        },
+      ],
+      'time-traveler': [
+        {
+          question: 'Як грати в Time Traveler?',
+          answer:
+            'Прочитай історичне запитання, роздивись ілюстровані картки та вибери одну відповідь. У кожній партії — 10 запитань із банку 300 історичних сюжетів.',
+        },
+        {
+          question: 'Коли з’являються дати та історичні факти?',
+          answer:
+            'Після вибору картки відкриваються дати на всіх картках та історичний факт. Їх можна уважно прочитати перед переходом до наступного запитання.',
+        },
+        {
+          question: 'Як підраховується результат Time Traveler?',
+          answer:
+            'Кожна правильна відповідь приносить 100 балів, максимум — 1 000 за 10 запитань. Після останнього запитання партія завершується й можна переглянути результат.',
+        },
+      ],
+    },
+  },
+  ru: {
+    title: 'Частые вопросы',
+    description:
+      'Как играть в четыре игры QuizRoam, разобраться в правилах и следить за своим прогрессом.',
+    navigation: 'Перейти к теме',
+    generalTitle: 'Начало игры и прогресс',
+    general: [
+      {
+        question: 'Нужен ли аккаунт для игры?',
+        answer:
+          'Можно играть без аккаунта. Когда сервер доступен, завершённые партии сохраняются в гостевом профиле. Если вход через Google доступен, можно подключить гостевой профиль и сохранять онлайн-прогресс между устройствами.',
+      },
+      {
+        question: 'Что происходит, когда сервер недоступен?',
+        answer:
+          'Игра предлагает локальную демопартию и сообщает об этом. Завершённые демопартии остаются в этом браузере. Они не загружаются как проверенные результаты и не попадают в рейтинг.',
+      },
+      {
+        question: 'Как работает ежедневное испытание?',
+        answer:
+          'Игра дня обновляется в 00:00 UTC. Первая завершённая ежедневная партия — твой результат за этот день. Продолжить тренироваться можно на обычных страницах игр.',
+      },
+    ],
+    games: {
+      'flag-master': [
+        {
+          question: 'Как играть в Flag Master?',
+          answer:
+            'Рассмотри флаг и выбери его страну из четырёх вариантов. В каждой партии — 10 разных флагов из каталога 195 стран.',
+        },
+        {
+          question: 'Как начисляются баллы? Есть ли таймер?',
+          answer:
+            'Каждый правильный ответ приносит 100 баллов, максимум — 1 000 за партию. Таймера нет, поэтому можно внимательно рассмотреть каждый флаг.',
+        },
+        {
+          question: 'Можно ли научиться на неправильном ответе?',
+          answer:
+            'Да. После ответа ты увидишь правильную страну и сможешь прочитать факты о ней. Изучи объяснение и переходи к следующему вопросу, когда будешь готов.',
+        },
+      ],
+      'geo-challenge': [
+        {
+          question: 'Как ответить на вопрос Geo Challenge?',
+          answer:
+            'Прочитай название места и нажми на его контур на карте. Каждая партия содержит 10 вопросов с картами. Таймера нет.',
+        },
+        {
+          question: 'Какие места встречаются на картах?',
+          answer:
+            'Партии охватывают Африку, Азию, Европу, Северную и Южную Америку, Океанию и штаты США. Вид карты меняется в зависимости от местности, которую ты изучаешь.',
+        },
+        {
+          question: 'Как увидеть правильное место?',
+          answer:
+            'После ответа правильное место выделяется зелёным. Если ты ошибся, выбранное место тоже будет отмечено, чтобы можно было их сравнить.',
+        },
+      ],
+      'number-iq': [
+        {
+          question: 'Что нужно найти в Number IQ?',
+          answer:
+            'Найди правило, которое связывает числа, и выбери пропущенное число. Пропуск может быть в начале, середине или конце последовательности. В каждой партии — 10 заданий.',
+        },
+        {
+          question: 'Можно ли выбрать сложность?',
+          answer:
+            'Да. В обычных партиях доступны уровни «Легко», «Средне», «Сложнее» и «Разная». «Разная» сочетает разные уровни сложности. Таймера нет, поэтому можно решать в своём темпе.',
+        },
+        {
+          question: 'Будет ли объяснение решения?',
+          answer:
+            'После каждого ответа игра показывает правило и короткое вычисление. Игровой счёт отражает ответы в этой партии и не является стандартизованным измерением IQ.',
+        },
+      ],
+      'time-traveler': [
+        {
+          question: 'Как играть в Time Traveler?',
+          answer:
+            'Прочитай исторический вопрос, рассмотри иллюстрированные карточки и выбери один ответ. В каждой партии — 10 вопросов из банка 300 исторических сюжетов.',
+        },
+        {
+          question: 'Когда появляются даты и исторические факты?',
+          answer:
+            'После выбора карточки открываются даты на всех карточках и исторический факт. Их можно внимательно прочитать перед переходом к следующему вопросу.',
+        },
+        {
+          question: 'Как подсчитывается результат Time Traveler?',
+          answer:
+            'Каждый правильный ответ приносит 100 баллов, максимум — 1 000 за 10 вопросов. После последнего вопроса партия завершается и можно посмотреть результат.',
+        },
+      ],
+    },
+  },
+};
 
 export const numberRuleCopy = {
   en: {

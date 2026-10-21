@@ -29,6 +29,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDemoProfile } from '@/hooks/useDemoProfile';
 
 import { useLocale } from '@/i18n/LocaleProvider';
+import { brand } from '@/i18n/dictionaries';
 
 import { cn } from '@/lib/utils';
 
@@ -120,7 +121,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>BrainPlay</SheetTitle>
+                  <SheetTitle>{brand.name}</SheetTitle>
                   <SheetDescription>{t.footer}</SheetDescription>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 px-4">

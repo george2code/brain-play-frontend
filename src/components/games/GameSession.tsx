@@ -401,6 +401,14 @@ export function GameSession({
                     : t.start}
                 <ArrowRight />
               </Button>
+              <div className="mt-4">
+                <Link
+                  href={`${ROUTES.faq}#${game.code}`}
+                  className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  {t.faq}
+                </Link>
+              </div>
             </div>
           </section>
         )}

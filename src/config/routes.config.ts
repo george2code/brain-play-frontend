@@ -5,5 +5,6 @@ export const ROUTES = {
   profile: '/profile',
   daily: '/daily',
   leaderboard: '/leaderboard',
+  faq: '/faq',
   game: (code: GameCode) => `/games/${code}`,
 } as const;

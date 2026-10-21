@@ -8,9 +8,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-## BrainPlay conventions
+## QuizRoam conventions
 
+- The public brand is **QuizRoam** (capital Q and R, spelled Roam, not Rom). The user purchased `quizroam.net` on 2026-10-21. Use `https://quizroam.net` as the intended production site URL for future SEO and deployment configuration. Domain purchase alone does not confirm DNS, HTTPS, or deployment setup. Preserve legacy `brainplay:*` storage/event keys to retain existing progress and language preferences.
 - Read `README.md` and `src/styles/README.md` before changing architecture or styling.
+- Render the logo wordmark as lowercase `quizroam.`: black `quiz`, green `roam`, and an orange baseline period. Keep the green brain icon. Use `QuizRoam` in ordinary copy and metadata.
 - Keep thin server route files and named screen components as in Show Ring / Tea Shop.
 - All interactive copy belongs in `src/i18n/dictionaries.ts` (EN/UK/RU).
 - Use shared Tailwind tokens and shadcn Base UI primitives. Base UI uses `render`.
