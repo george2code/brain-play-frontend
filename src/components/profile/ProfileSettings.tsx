@@ -1,7 +1,10 @@
 'use client';
+import { useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+
+import { sessionClient } from '@/api/session.client';
 
 import {
   AlertDialog,
@@ -25,6 +28,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useDemoProfile } from '@/hooks/useDemoProfile';
 
 import { useLocale } from '@/i18n/LocaleProvider';
@@ -32,6 +36,9 @@ import { useLocale } from '@/i18n/LocaleProvider';
 export function ProfileSettings() {
   const { profile, rename, reset } = useDemoProfile();
   const { t } = useLocale();
+  const { user } = useAuth();
+  const client = useQueryClient();
+  const [saving, setSaving] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [nickname, setNickname] = useState(profile.nickname);
@@ -41,7 +48,7 @@ export function ProfileSettings() {
         open={editOpen}
         onOpenChange={(open) => {
           setEditOpen(open);
-          if (open) setNickname(profile.nickname);
+          if (open) setNickname(user?.nickname || profile.nickname);
         }}
       >
         <DialogTrigger
@@ -56,12 +63,26 @@ export function ProfileSettings() {
             <DialogDescription>{t.nicknameHint}</DialogDescription>
           </DialogHeader>
           <form
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
               if (nickname.trim().length < 2) return;
-              rename(nickname);
-              setEditOpen(false);
-              toast.success(t.saved);
+              setSaving(true);
+              try {
+                if (user) {
+                  await sessionClient.patch('/users/me', {
+                    nickname: nickname.trim(),
+                  });
+                  await client.invalidateQueries({
+                    queryKey: ['auth-profile'],
+                  });
+                } else rename(nickname);
+                setEditOpen(false);
+                toast.success(t.saved);
+              } catch {
+                toast.error(t.googleError);
+              } finally {
+                setSaving(false);
+              }
             }}
           >
             <label
@@ -83,7 +104,7 @@ export function ProfileSettings() {
             />
             <Button
               type="submit"
-              disabled={nickname.trim().length < 2}
+              disabled={saving || nickname.trim().length < 2}
               className="mt-4 h-11 w-full"
             >
               {t.save}

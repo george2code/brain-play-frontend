@@ -12,7 +12,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { SignInDialog } from '@/components/auth/SignInDialog';
+import { AccountStatus } from '@/components/auth/AccountStatus';
 import { DailyCard } from '@/components/games/DailyCard';
 import { GameCard } from '@/components/games/GameCard';
 import { ProfileSettings } from '@/components/profile/ProfileSettings';
@@ -31,6 +31,7 @@ import {
 
 import { GAMES, getGame } from '@/constants/games.constants';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useDemoProfile } from '@/hooks/useDemoProfile';
 import { useVerifiedProgress } from '@/hooks/useVerifiedProgress';
 
@@ -55,6 +56,7 @@ const HISTORY_PAGE_SIZE = 8;
 export default function Profile() {
   const [historyPage, setHistoryPage] = useState(1);
   const { t, locale } = useLocale();
+  const { user, registered, loading: authLoading } = useAuth();
   const { profile, hasPlayed: hasLocalPlayed, hydrated } = useDemoProfile();
   const {
     stats: verifiedStats,
@@ -87,13 +89,13 @@ export default function Profile() {
     accuracy: total ? Math.round((correct / total) * 100) : 0,
     streak: progressStats(history).streak,
   };
-  if (!hydrated || (!hasLocalPlayed && verifiedLoading))
+  if (!hydrated || (!hasLocalPlayed && (authLoading || verifiedLoading)))
     return (
       <div className="page-container py-12">
         <Skeleton className="h-80 w-full" />
       </div>
     );
-  if (!hasPlayed)
+  if (!hasPlayed && !registered)
     return (
       <div className="page-container py-16">
         <section className="surface-card mx-auto max-w-xl px-7 py-12 text-center">
@@ -106,6 +108,9 @@ export default function Profile() {
             {t.pickGame}
             <ArrowRight size={16} />
           </Link>
+          <div className="mt-8 text-left">
+            <AccountStatus />
+          </div>
         </section>
       </div>
     );
@@ -114,10 +119,14 @@ export default function Profile() {
       <div className="mb-8 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
         <div>
           <p className="eyebrow mb-3 text-primary">
-            {remote.played ? t.resultSaved : t.localOnly}
+            {registered
+              ? t.googleConnected
+              : remote.played
+                ? t.resultSaved
+                : t.localOnly}
           </p>
           <h1 className="text-4xl font-semibold tracking-tight">
-            {profile.nickname || t.guest}
+            {user?.nickname || profile.nickname || t.guest}
             <span className="text-peach">.</span>
           </h1>
           <p className="mt-3 text-muted-foreground">{t.profileTitle}</p>
@@ -253,15 +262,7 @@ export default function Profile() {
           </div>
         </div>
         <aside className="min-w-0 space-y-5">
-          <section className="flex flex-col items-start gap-5 rounded-2xl border border-primary/15 bg-hero p-6">
-            <div>
-              <h2 className="text-lg font-semibold">{t.googleLinkTitle}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {t.googleLinkDescription}
-              </p>
-            </div>
-            <SignInDialog profileLink />
-          </section>
+          <AccountStatus />
           <AdSlot format="rectangle" />
           <DailyCard />
         </aside>

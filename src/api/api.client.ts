@@ -8,7 +8,7 @@ export const apiClient = axios.create({
   timeout: 15_000,
   headers: { Accept: 'application/json' },
 });
-// Auth orchestration is not available in the backend yet. Never persist tokens in localStorage.
+// Optional bearer client for explicit API integrations; browser UI uses session.client.
 export function createAuthenticatedClient(accessToken: string) {
   return axios.create({
     baseURL: API_BASE_URL,

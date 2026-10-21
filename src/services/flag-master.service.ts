@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-import { API_BASE_URL } from '@/config/api.config';
-
-import { currentRulesVersion } from '@/constants/game-rules.constants';
+import {
+  sessionClient as client,
+  withGuestSession,
+} from '@/api/session.client';
 
 import { dictionaries } from '@/i18n/dictionaries';
 
@@ -11,11 +12,6 @@ import flagCatalog from '@/services/demo/flags/flags.json';
 import type { DemoQuestion } from '@/shared/types/game.types';
 import type { GameCode } from '@/shared/types/game.types';
 
-const client = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 5000,
-  withCredentials: true,
-});
 const flags = new Map(flagCatalog.map((flag) => [flag.code, flag]));
 
 export type ServerFlagRound = {
@@ -44,42 +40,19 @@ export async function startFlagRound(
 ): Promise<ServerFlagRound> {
   const start = () =>
     client.post<ServerFlagRound>('/flag-master/rounds', { mode });
-  try {
-    return (await start()).data;
-  } catch (error) {
-    if (!axios.isAxiosError(error) || error.response?.status !== 401)
-      throw error;
-  }
-  try {
-    await client.post('/auth/refresh', {});
-  } catch {
-    await client.post('/auth/guest', {});
-  }
-  return (await start()).data;
+  return (await withGuestSession(start)).data;
 }
 
 export async function completeFlagRound(
   roundId: string,
   answers: number[],
 ): Promise<ServerFlagResult> {
-  try {
-    return (
-      await client.post<ServerFlagResult>(
-        `/flag-master/rounds/${encodeURIComponent(roundId)}/complete`,
-        { answers },
-      )
-    ).data;
-  } catch (error) {
-    if (!axios.isAxiosError(error) || error.response?.status !== 401)
-      throw error;
-    await client.post('/auth/refresh', {});
-    return (
-      await client.post<ServerFlagResult>(
-        `/flag-master/rounds/${encodeURIComponent(roundId)}/complete`,
-        { answers },
-      )
-    ).data;
-  }
+  return (
+    await client.post<ServerFlagResult>(
+      `/flag-master/rounds/${encodeURIComponent(roundId)}/complete`,
+      { answers },
+    )
+  ).data;
 }
 
 export async function readFlagStats(): Promise<ServerFlagStats | null> {
@@ -92,30 +65,37 @@ export async function readFlagStats(): Promise<ServerFlagStats | null> {
   }
 }
 
-export type ServerAttempt = {
+type StoredAttempt = {
   id: string;
-  score: number;
-  correctAnswers: number;
+  score: number | null;
+  correctAnswers: number | null;
   totalRounds: number;
-  completedAt: string;
+  completedAt: string | null;
   verificationStatus: 'VERIFIED' | 'PENDING' | 'REJECTED';
   mode: { code: string; rulesVersion: number; game: { code: string } };
+};
+export type ServerAttempt = StoredAttempt & {
+  score: number;
+  correctAnswers: number;
+  completedAt: string;
 };
 
 export async function readVerifiedHistory(): Promise<ServerAttempt[]> {
   try {
-    const response = await client.get<{ items: ServerAttempt[] }>(
+    const response = await client.get<{ items: StoredAttempt[] }>(
       '/game-attempts/me',
       { params: { limit: 50 } },
     );
     return response.data.items.filter(
-      (attempt) =>
+      (attempt): attempt is ServerAttempt =>
+        attempt.score !== null &&
+        attempt.correctAnswers !== null &&
+        attempt.completedAt !== null &&
+        Number.isFinite(Date.parse(attempt.completedAt)) &&
         attempt.verificationStatus === 'VERIFIED' &&
         ['flag-master', 'geo-challenge', 'number-iq', 'time-traveler'].includes(
           attempt.mode.game.code as GameCode,
-        ) &&
-        attempt.mode.rulesVersion ===
-          currentRulesVersion(attempt.mode.game.code as GameCode),
+        ),
     );
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 401) return [];

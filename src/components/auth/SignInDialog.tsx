@@ -1,5 +1,10 @@
 'use client';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight, Brain } from 'lucide-react';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+
+import { authClient } from '@/api/session.client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +16,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+import { useAuth } from '@/hooks/useAuth';
+
 import { useLocale } from '@/i18n/LocaleProvider';
 
 export function SignInDialog({
@@ -21,8 +28,19 @@ export function SignInDialog({
   profileLink?: boolean;
 }) {
   const { t } = useLocale();
+  const { registered } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const config = useQuery({
+    queryKey: ['auth-config'],
+    queryFn: async () =>
+      (await authClient.get<{ googleEnabled: boolean }>('/auth/config')).data,
+    enabled: open,
+    retry: false,
+  });
+  if (registered) return null;
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
           <Button
@@ -50,14 +68,34 @@ export function SignInDialog({
             {profileLink ? t.googleLinkDescription : t.authDescription}
           </DialogDescription>
         </DialogHeader>
-        <Button variant="outline" className="h-12" disabled>
+        <Button
+          variant="outline"
+          className="h-12"
+          disabled={!config.data?.googleEnabled || busy}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              const { data } = await authClient.post<{ url: string }>(
+                '/auth/google',
+                {},
+              );
+              const url = new URL(data.url);
+              if (url.protocol !== 'https:')
+                throw new Error('Invalid sign-in URL.');
+              window.location.assign(url.href);
+            } catch {
+              toast.error(t.googleError);
+              setBusy(false);
+            }
+          }}
+        >
           <span aria-hidden="true" className="text-lg font-bold">
             G
           </span>
-          {t.google}
+          {busy ? t.googleConnecting : t.google}
         </Button>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {t.googleSoon}
+          {config.data?.googleEnabled ? t.googlePrivacy : t.googleSoon}
         </p>
       </DialogContent>
     </Dialog>

@@ -135,14 +135,24 @@ const en = {
   saveResult: 'Keep your progress',
   localOnly: 'Local profile',
   localDescription:
-    'Your demo results are saved on this device. Google sign-in and cloud sync are coming next.',
+    'Demo results stay on this device. Connect Google to keep your online progress across devices.',
   google: 'Continue with Google',
   googleSoon:
     'Google sign-in is not connected yet. You can play without an account.',
   googleLinkTitle: 'Connect your guest profile',
   googleLinkDescription:
-    'Google linking is coming soon. Completed online rounds stay in your guest profile; demo rounds stay in this browser.',
-  googleLinkAction: 'Google linking · coming soon',
+    'Connect Google to keep your completed online rounds and join the leaderboard. Demo rounds stay in this browser.',
+  googleLinkAction: 'Connect Google',
+  googleConnecting: 'Opening Google…',
+  googlePrivacy:
+    'Only your identity and email are requested. BrainPlay does not access your Gmail.',
+  googleSuccess: 'Google connected. Your online progress is saved.',
+  googleError: 'Could not complete the request. Please try again.',
+  googleConnected: 'Google account connected',
+  signOut: 'Sign out',
+  rankingMode: 'Classic mode · current rules',
+  rankingPlace: 'Place',
+  rankingPlayer: 'Player',
   authTitle: 'Make room for more discoveries.',
   authDescription:
     'A profile to keep your scores, your streak, and your favourite games together.',
@@ -170,7 +180,7 @@ const en = {
     'Every game has its own leaderboard. Choose a game to explore.',
   rankingEmpty: 'The starting line is open.',
   rankingNote:
-    'Public rankings will open with account sign-in. Local demo scores don’t enter the rankings.',
+    'Complete an online round and connect Google to join. Local demo scores don’t enter the rankings.',
   profileTitle: 'Look how far curiosity takes you.',
   guest: 'Curious player',
   correctAnswers: 'Correct answers',
@@ -330,13 +340,23 @@ const ru: Dictionary = {
   saveResult: 'Сохрани свой прогресс',
   localOnly: 'Локальный профиль',
   localDescription:
-    'Деморезультаты хранятся на этом устройстве. Google-вход и синхронизацию подключим следующим этапом.',
+    'Деморезультаты хранятся на этом устройстве. Привяжи Google, чтобы сохранять онлайн-прогресс между устройствами.',
   google: 'Продолжить с Google',
   googleSoon: 'Вход через Google пока не подключён. Можно играть без аккаунта.',
   googleLinkTitle: 'Закрепи гостевой профиль',
   googleLinkDescription:
-    'Привязка к Google скоро появится. Завершённые онлайн-партии хранятся в гостевом профиле, демопартии — только в этом браузере.',
-  googleLinkAction: 'Привязка к Google · скоро',
+    'Привяжи Google, чтобы сохранить завершённые онлайн-партии и участвовать в рейтинге. Демопартии останутся в этом браузере.',
+  googleLinkAction: 'Привязать Google',
+  googleConnecting: 'Открываем Google…',
+  googlePrivacy:
+    'Запрашиваем только данные профиля и email. Доступа к Gmail у BrainPlay нет.',
+  googleSuccess: 'Google подключён. Онлайн-прогресс сохранён.',
+  googleError: 'Не удалось выполнить запрос. Попробуй ещё раз.',
+  googleConnected: 'Google-аккаунт подключён',
+  signOut: 'Выйти',
+  rankingMode: 'Классический режим · текущие правила',
+  rankingPlace: 'Место',
+  rankingPlayer: 'Игрок',
   authTitle: 'Место для новых открытий.',
   authDescription:
     'Результаты, серии дней и любимые игры — всё в одном профиле.',
@@ -364,7 +384,7 @@ const ru: Dictionary = {
     'У каждой игры свой рейтинг. Выбери интересную тебе игру.',
   rankingEmpty: 'Стартовая линия свободна.',
   rankingNote:
-    'Публичные рейтинги откроются после подключения входа в аккаунт. Локальные деморезультаты в них не участвуют.',
+    'Заверши онлайн-партию и подключи Google для участия. Локальные деморезультаты в рейтинге не участвуют.',
   profileTitle: 'Посмотри, куда ведёт любопытство.',
   guest: 'Любопытный игрок',
   correctAnswers: 'Правильных ответов',
@@ -523,13 +543,23 @@ const uk: Dictionary = {
   saveResult: 'Збережи свій прогрес',
   localOnly: 'Локальний профіль',
   localDescription:
-    'Деморезультати зберігаються на цьому пристрої. Google-вхід і синхронізацію підключимо наступним етапом.',
+    'Деморезультати зберігаються на цьому пристрої. Підключи Google, щоб зберігати онлайн-прогрес між пристроями.',
   google: 'Продовжити з Google',
   googleSoon: 'Вхід через Google ще не підключений. Можна грати без акаунта.',
   googleLinkTitle: 'Закріпи гостьовий профіль',
   googleLinkDescription:
-    'Прив’язка до Google скоро з’явиться. Завершені онлайн-партії зберігаються в гостьовому профілі, демопартії — лише в цьому браузері.',
-  googleLinkAction: 'Прив’язка до Google · незабаром',
+    'Підключи Google, щоб зберегти завершені онлайн-партії та брати участь у рейтингу. Демопартії залишаться в цьому браузері.',
+  googleLinkAction: 'Підключити Google',
+  googleConnecting: 'Відкриваємо Google…',
+  googlePrivacy:
+    'Запитуємо лише дані профілю та email. BrainPlay не має доступу до Gmail.',
+  googleSuccess: 'Google підключено. Онлайн-прогрес збережено.',
+  googleError: 'Не вдалося виконати запит. Спробуй ще раз.',
+  googleConnected: 'Google-акаунт підключено',
+  signOut: 'Вийти',
+  rankingMode: 'Класичний режим · поточні правила',
+  rankingPlace: 'Місце',
+  rankingPlayer: 'Гравець',
   authTitle: 'Місце для нових відкриттів.',
   authDescription:
     'Результати, серії днів та улюблені ігри — в одному профілі.',
@@ -556,7 +586,7 @@ const uk: Dictionary = {
   rankingDescription: 'Кожна гра має власний рейтинг. Обери цікаву тобі гру.',
   rankingEmpty: 'Стартова лінія вільна.',
   rankingNote:
-    'Публічні рейтинги відкриються після підключення входу в акаунт. Локальні деморезультати в них не беруть участі.',
+    'Заверши онлайн-партію та підключи Google для участі. Локальні деморезультати в рейтингу не беруть участі.',
   profileTitle: 'Поглянь, куди веде цікавість.',
   guest: 'Допитливий гравець',
   correctAnswers: 'Правильних відповідей',

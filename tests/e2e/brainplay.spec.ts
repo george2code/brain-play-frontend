@@ -9,6 +9,19 @@ import {
 import { timeTravelerQuestionBank } from '../../src/services/demo/time-traveler';
 
 test.beforeEach(async ({ page }) => {
+  const headers = {
+    'access-control-allow-origin': 'http://localhost:3100',
+    'access-control-allow-credentials': 'true',
+  };
+  await page.route('**/api/v1/users/me', (route) =>
+    route.fulfill({ status: 401, json: {}, headers }),
+  );
+  await page.route('**/api/v1/auth/refresh', (route) =>
+    route.fulfill({ status: 401, json: {}, headers }),
+  );
+  await page.route('**/api/v1/auth/config', (route) =>
+    route.fulfill({ json: { googleEnabled: false }, headers }),
+  );
   // The existing UI suite exercises the explicit offline demo path.
   await page.route('**/api/v1/quiz-rounds/**', (route) => route.abort());
 });
@@ -278,9 +291,7 @@ test('server Geo and Number rounds appear in the profile without local copies', 
     ).toBeVisible();
   }
   await expect(page.getByRole('row')).toHaveCount(3);
-  await page
-    .getByRole('button', { name: 'Google linking · coming soon' })
-    .click();
+  await page.getByRole('button', { name: 'Connect Google' }).click();
   await expect(
     page.getByRole('dialog', { name: 'Connect your guest profile' }),
   ).toBeVisible();
@@ -377,7 +388,7 @@ test('catalog, round, profile persistence, rename and reset', async ({
     page.getByRole('heading', { name: 'Curious player.' }),
   ).toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Google linking · coming soon' }),
+    page.getByRole('button', { name: 'Connect Google' }),
   ).toBeVisible();
   await page.reload();
   await expect(page.getByText('100%', { exact: true }).first()).toBeVisible();

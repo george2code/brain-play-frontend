@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
+import { AuthFeedback } from '@/components/auth/AuthFeedback';
+
 import { LocaleProvider } from '@/i18n/LocaleProvider';
 
 function makeQueryClient() {
@@ -21,6 +23,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={getQueryClient()}>
       <LocaleProvider>
+        <AuthFeedback />
         {children}
         <Toaster
           position="bottom-center"

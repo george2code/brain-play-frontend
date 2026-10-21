@@ -25,6 +25,7 @@ import {
 
 import { ROUTES } from '@/config/routes.config';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useDemoProfile } from '@/hooks/useDemoProfile';
 
 import { useLocale } from '@/i18n/LocaleProvider';
@@ -33,7 +34,9 @@ import { cn } from '@/lib/utils';
 
 export function Header() {
   const { locale, setLocale, t } = useLocale();
-  const { hasPlayed } = useDemoProfile();
+  const { hasPlayed: localPlayed } = useDemoProfile();
+  const { user } = useAuth();
+  const hasPlayed = localPlayed || Boolean(user);
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const links = [

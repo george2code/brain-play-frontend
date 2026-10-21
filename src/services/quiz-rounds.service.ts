@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-import { API_BASE_URL } from '@/config/api.config';
+import {
+  sessionClient as client,
+  withGuestSession,
+} from '@/api/session.client';
 
 import { NUMBER_QUESTION_BANK } from '@/services/demo/number-questions';
 
@@ -33,30 +36,13 @@ export type ServerQuizStats = {
   rulesVersion: number;
 };
 
-const client = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 5000,
-  withCredentials: true,
-});
-
 export async function startQuizRound(
   game: QuizGame,
   mode: 'classic' | 'daily' | 'easy' | 'medium' | 'hard',
 ): Promise<ServerQuizRound> {
   const start = () =>
     client.post<ServerQuizRound>(`/quiz-rounds/${game}`, { mode });
-  try {
-    return (await start()).data;
-  } catch (error) {
-    if (!axios.isAxiosError(error) || error.response?.status !== 401)
-      throw error;
-  }
-  try {
-    await client.post('/auth/refresh', {});
-  } catch {
-    await client.post('/auth/guest', {});
-  }
-  return (await start()).data;
+  return (await withGuestSession(start)).data;
 }
 
 export async function completeQuizRound(
@@ -69,14 +55,7 @@ export async function completeQuizRound(
       `/quiz-rounds/${game}/${encodeURIComponent(roundId)}/complete`,
       { answers },
     );
-  try {
-    return (await complete()).data;
-  } catch (error) {
-    if (!axios.isAxiosError(error) || error.response?.status !== 401)
-      throw error;
-    await client.post('/auth/refresh', {});
-    return (await complete()).data;
-  }
+  return (await complete()).data;
 }
 
 export async function readQuizStats(

@@ -25,7 +25,14 @@ export function verifiedTotals(stats: VerifiedStats) {
 export function verifiedAttempts(history: ServerAttempt[]): DemoAttempt[] {
   return history.flatMap((attempt) => {
     const game = attempt.mode.game.code;
-    if (!isGameCode(game)) return [];
+    if (
+      !isGameCode(game) ||
+      attempt.score === null ||
+      attempt.correctAnswers === null ||
+      !attempt.completedAt ||
+      !Number.isFinite(Date.parse(attempt.completedAt))
+    )
+      return [];
     return [
       {
         id: attempt.id,
