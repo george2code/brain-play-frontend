@@ -674,8 +674,8 @@ test('languages, navigation and honest unavailable sign-in', async ({
   await page.getByRole('button', { name: 'Flag Master', exact: true }).click();
   await expect(
     page.getByRole('link', { name: 'Flag Master', exact: true }),
-  ).toHaveAttribute('href', '/games/flag-master');
-  await page.goto('/');
+  ).toHaveAttribute('href', '/ru/games/flag-master');
+  await page.goto('/ru');
   if (testInfo.project.name === 'mobile')
     await page.getByRole('button', { name: 'Открыть меню' }).click();
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -739,7 +739,7 @@ test('Number IQ shows the answer and worked solution in the current question', a
         .numberLevel,
   );
   expect(savedLevel).toBe('hard');
-  await page.goto('/');
+  await page.goto('/ru');
   await expect(
     page
       .getByRole('link', { name: 'Играть — Number IQ' })

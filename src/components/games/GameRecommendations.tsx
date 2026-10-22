@@ -1,9 +1,9 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
-import Link from 'next/link';
 
 import { GameArtwork } from '@/components/games/GameArtwork';
+import Link from '@/components/shared/LocalizedLink';
 
 import { ROUTES } from '@/config/routes.config';
 

@@ -13,12 +13,13 @@ import { useDemoProfile } from '@/hooks/useDemoProfile';
 import { useVerifiedProgress } from '@/hooks/useVerifiedProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
+import { seoCopy } from '@/i18n/dictionaries';
 
 import { combinedGameStats, numberTrophy } from '@/utils/progress.utils';
 import { verifiedStatsForGame } from '@/utils/verified-progress.utils';
 
 export default function Home() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { profile } = useDemoProfile();
   const { stats: verifiedStats, history: verifiedHistory } =
     useVerifiedProgress();
@@ -108,6 +109,12 @@ export default function Home() {
           />
         </aside>
       </div>
+      <section className="mt-10 max-w-3xl border-t border-border pt-8">
+        <h2 className="section-title">{seoCopy[locale].home.heading}</h2>
+        <p className="mt-4 text-sm leading-7 text-muted-foreground">
+          {seoCopy[locale].home.body}
+        </p>
+      </section>
     </div>
   );
 }

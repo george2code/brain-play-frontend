@@ -1,8 +1,0 @@
-import type { Metadata } from 'next';
-
-import Leaderboard from './Leaderboard';
-
-export const metadata: Metadata = { title: 'Leaderboards' };
-export default function Page() {
-  return <Leaderboard />;
-}

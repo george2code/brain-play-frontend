@@ -1,10 +1,10 @@
 'use client';
 import { Menu, Sparkles, UserRound } from 'lucide-react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import { SignInDialog } from '@/components/auth/SignInDialog';
+import Link from '@/components/shared/LocalizedLink';
 import { Logo } from '@/components/shared/Logo';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,6 +30,7 @@ import { useDemoProfile } from '@/hooks/useDemoProfile';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 import { brand } from '@/i18n/dictionaries';
+import { withoutLocale } from '@/i18n/routing';
 
 import { cn } from '@/lib/utils';
 
@@ -38,7 +39,7 @@ export function Header() {
   const { hasPlayed: localPlayed } = useDemoProfile();
   const { user } = useAuth();
   const hasPlayed = localPlayed || Boolean(user);
-  const pathname = usePathname();
+  const pathname = withoutLocale(usePathname());
   const [menuOpen, setMenuOpen] = useState(false);
   const links = [
     { href: ROUTES.home, label: t.games },

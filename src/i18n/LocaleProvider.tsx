@@ -1,10 +1,12 @@
 'use client';
+import { useRouter } from 'next/navigation';
+import { createContext, useContext } from 'react';
 
-import { createContext, useContext, useEffect } from 'react';
-
-import { useLocalStore, writeLocal } from '@/hooks/useLocalStore';
+import { writeLocal } from '@/hooks/useLocalStore';
+import { LOCALE_NAVIGATION_EVENT } from '@/hooks/useLocalePreservedState';
 
 import { type Dictionary, dictionaries } from '@/i18n/dictionaries';
+import { localizedPath } from '@/i18n/routing';
 
 import type { Locale } from '@/shared/types/game.types';
 
@@ -13,19 +15,29 @@ const LocaleContext = createContext<{
   t: Dictionary;
   setLocale: (locale: Locale) => void;
 } | null>(null);
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const stored = useLocalStore('brainplay:locale');
-  const locale: Locale = stored === 'ru' || stored === 'uk' ? stored : 'en';
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
+export function LocaleProvider({
+  children,
+  locale,
+}: {
+  children: React.ReactNode;
+  locale: Locale;
+}) {
+  const router = useRouter();
   return (
     <LocaleContext
       value={{
         locale,
         t: dictionaries[locale],
         setLocale: (value) => {
+          if (value === locale) return;
           writeLocal('brainplay:locale', value);
+          window.dispatchEvent(new Event(LOCALE_NAVIGATION_EVENT));
+          router.push(
+            localizedPath(window.location.pathname, value) +
+              window.location.search +
+              window.location.hash,
+            { scroll: false },
+          );
         },
       }}
     >

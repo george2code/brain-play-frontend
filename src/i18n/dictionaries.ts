@@ -1,5 +1,158 @@
 import type { GameCode, Locale } from '@/shared/types/game.types';
 
+type SeoContent = {
+  title: string;
+  description: string;
+  heading: string;
+  body: string;
+};
+type SeoCopy = {
+  home: SeoContent;
+  daily: SeoContent;
+  games: Record<GameCode, SeoContent>;
+};
+
+export const seoCopy: Record<Locale, SeoCopy> = {
+  en: {
+    home: {
+      title: 'Free geography, flag, history and number quizzes',
+      description:
+        'Play free online quizzes with QuizRoam: recognise flags, explore maps, order historical events and solve number sequences. Ten questions per round, no timer.',
+      heading: 'Four ways to explore what you know',
+      body: 'Choose a quiz about world flags, geography, historical events or number patterns. Each round has ten questions with answers to learn from, and no countdown. Start without an account, try a different game or return for the daily challenge. QuizRoam is available in English, Ukrainian and Russian.',
+    },
+    daily: {
+      title: 'Daily quiz challenge',
+      description:
+        'Try the QuizRoam daily challenge: a fresh selection of ten questions in flags, geography, history or number patterns. A new challenge arrives at 00:00 UTC.',
+      heading: 'A new quiz every day',
+      body: 'The daily challenge selects one of the four games and ten questions for the day. Everyone gets the same daily selection. The challenge changes at 00:00 UTC; your first completed result is the one saved for that day.',
+    },
+    games: {
+      'flag-master': {
+        title: 'Flag Master — world flags quiz',
+        description:
+          'Recognise flags from 195 countries in Flag Master. Play ten questions with four choices each, discover the answers and learn flag facts without a timer.',
+        heading: 'Learn the flags of the world',
+        body: 'Look at each flag and choose its country from four options. Compare colours, stripes and symbols, then read the fact shown after your answer. A round includes ten different flags; a correct answer earns 100 points.',
+      },
+      'geo-challenge': {
+        title: 'Geo Challenge — countries and maps quiz',
+        description:
+          'Find countries and US states on interactive maps in Geo Challenge. Explore the continents in ten geography questions with answers and no time limit.',
+        heading: 'Find the right place on the map',
+        body: 'Read the name of a country or US state, then tap its outline on the map. Questions cover countries across the continents and US states. After each answer, the correct outline appears in green so you can compare it with your choice.',
+      },
+      'number-iq': {
+        title: 'Number IQ — number sequence puzzles',
+        description:
+          'Find the missing number in Number IQ. Solve ten sequence puzzles, choose your difficulty and read explanations. A logic game, not a standardised IQ test.',
+        heading: 'Find the pattern behind the numbers',
+        body: 'The missing number can appear at the start, in the middle or at the end of a sequence. Choose Easy, Medium, Challenge or Mixed, then check the explanation after each answer. The question bank contains 300 puzzles. This game practises pattern recognition; it does not measure IQ.',
+      },
+      'time-traveler': {
+        title: 'Time Traveler — history timeline quiz',
+        description:
+          'Which event happened first? Play Time Traveler: ten history questions with illustrated choices, dates and facts from a collection of 300 stories.',
+        heading: 'Put history in perspective',
+        body: 'Compare four illustrated events and choose the one that happened first. Dates and a short fact appear after your answer, helping connect inventions, discoveries and historical milestones. Each round has ten questions drawn from 300 stories.',
+      },
+    },
+  },
+  uk: {
+    home: {
+      title: 'Безкоштовні вікторини: географія, прапори, історія та числа',
+      description:
+        'Грайте в QuizRoam онлайн: впізнавайте прапори й карти, порівнюйте історичні події та розв’язуйте числові послідовності. Десять запитань без таймера.',
+      heading: 'Чотири способи дослідити свої знання',
+      body: 'Оберіть вікторину про прапори світу, географію, історичні події або числові закономірності. У кожному раунді десять запитань із відповідями для навчання та без відліку часу. Почніть без акаунта, спробуйте іншу гру або поверніться за щоденним викликом. QuizRoam доступний українською, англійською та російською.',
+    },
+    daily: {
+      title: 'Щоденна вікторина',
+      description:
+        'Щоденний виклик QuizRoam: десять запитань про прапори, географію, історію або числові закономірності. Нова добірка щодня о 00:00 UTC.',
+      heading: 'Нова вікторина щодня',
+      body: 'Щоденний виклик обирає одну з чотирьох ігор і десять запитань на день. Усі отримують однакову добірку. Виклик оновлюється о 00:00 UTC; за день зберігається перший завершений результат.',
+    },
+    games: {
+      'flag-master': {
+        title: 'Flag Master — вікторина про прапори світу',
+        description:
+          'Впізнавайте прапори 195 країн у Flag Master. Десять запитань із чотирма варіантами, правильними відповідями та фактами про прапори. Без таймера.',
+        heading: 'Вивчайте прапори світу',
+        body: 'Погляньте на прапор і виберіть країну з чотирьох варіантів. Порівнюйте кольори, смуги та символи, а після відповіді читайте факт про прапор. У раунді десять різних прапорів; правильна відповідь приносить 100 балів.',
+      },
+      'geo-challenge': {
+        title: 'Geo Challenge — вікторина про країни й карти',
+        description:
+          'Знаходьте країни та штати США на інтерактивних картах у Geo Challenge. Десять запитань із географії з відповідями, без обмеження часу.',
+        heading: 'Знайдіть потрібне місце на карті',
+        body: 'Прочитайте назву країни або штату США та натисніть на його контур на карті. Запитання охоплюють країни різних континентів і штати США. Після відповіді правильний контур стає зеленим, щоб ви могли порівняти його зі своїм вибором.',
+      },
+      'number-iq': {
+        title: 'Number IQ — числові послідовності та логіка',
+        description:
+          'Знайдіть пропущене число в Number IQ: десять логічних завдань, рівні складності та пояснення відповідей. Гра на закономірності, а не тест IQ.',
+        heading: 'Знайдіть закономірність у числах',
+        body: 'Пропущене число може стояти на початку, посередині або наприкінці послідовності. Оберіть легкий, середній, складніший або змішаний рівень і переглядайте пояснення після кожної відповіді. У базі 300 завдань. Гра тренує розпізнавання закономірностей, але не вимірює IQ.',
+      },
+      'time-traveler': {
+        title: 'Time Traveler — історична вікторина',
+        description:
+          'Яка подія сталася раніше? Time Traveler: десять запитань з історії з ілюстраціями, датами й фактами з добірки 300 історій.',
+        heading: 'Порівнюйте події в історії',
+        body: 'Порівняйте чотири ілюстровані події та виберіть найдавнішу. Після відповіді з’являються дати й короткий факт, що допомагають пов’язати винаходи, відкриття та історичні віхи. Кожен раунд містить десять запитань із добірки 300 історій.',
+      },
+    },
+  },
+  ru: {
+    home: {
+      title: 'Бесплатные викторины: география, флаги, история и числа',
+      description:
+        'Играйте в QuizRoam онлайн: узнавайте флаги и карты, сравнивайте исторические события и решайте числовые последовательности. Десять вопросов без таймера.',
+      heading: 'Четыре способа исследовать свои знания',
+      body: 'Выберите викторину о флагах мира, географии, исторических событиях или числовых закономерностях. В каждом раунде десять вопросов с ответами для обучения и без отсчёта времени. Начните без аккаунта, попробуйте другую игру или вернитесь за ежедневным испытанием. QuizRoam доступен на русском, украинском и английском языках.',
+    },
+    daily: {
+      title: 'Ежедневная викторина',
+      description:
+        'Ежедневное испытание QuizRoam: десять вопросов о флагах, географии, истории или числовых закономерностях. Новая подборка каждый день в 00:00 UTC.',
+      heading: 'Новая викторина каждый день',
+      body: 'Ежедневное испытание выбирает одну из четырёх игр и десять вопросов на день. Все получают одинаковую подборку. Испытание обновляется в 00:00 UTC; за день сохраняется первый завершённый результат.',
+    },
+    games: {
+      'flag-master': {
+        title: 'Flag Master — викторина о флагах мира',
+        description:
+          'Узнавайте флаги 195 стран в Flag Master. Десять вопросов с четырьмя вариантами, правильными ответами и фактами о флагах. Без таймера.',
+        heading: 'Изучайте флаги мира',
+        body: 'Посмотрите на флаг и выберите страну из четырёх вариантов. Сравнивайте цвета, полосы и символы, а после ответа читайте факт о флаге. В раунде десять разных флагов; правильный ответ приносит 100 баллов.',
+      },
+      'geo-challenge': {
+        title: 'Geo Challenge — викторина о странах и картах',
+        description:
+          'Находите страны и штаты США на интерактивных картах в Geo Challenge. Десять вопросов по географии с ответами, без ограничения времени.',
+        heading: 'Найдите нужное место на карте',
+        body: 'Прочитайте название страны или штата США и нажмите на его контур на карте. Вопросы охватывают страны разных континентов и штаты США. После ответа правильный контур становится зелёным, чтобы вы могли сравнить его со своим выбором.',
+      },
+      'number-iq': {
+        title: 'Number IQ — числовые последовательности и логика',
+        description:
+          'Найдите пропущенное число в Number IQ: десять логических задач, уровни сложности и объяснения ответов. Игра на закономерности, а не тест IQ.',
+        heading: 'Найдите закономерность в числах',
+        body: 'Пропущенное число может стоять в начале, середине или конце последовательности. Выберите лёгкий, средний, сложный или смешанный уровень и просматривайте объяснения после каждого ответа. В базе 300 задач. Игра тренирует распознавание закономерностей, но не измеряет IQ.',
+      },
+      'time-traveler': {
+        title: 'Time Traveler — историческая викторина',
+        description:
+          'Какое событие произошло раньше? Time Traveler: десять вопросов по истории с иллюстрациями, датами и фактами из подборки 300 историй.',
+        heading: 'Сравнивайте события в истории',
+        body: 'Сравните четыре иллюстрированных события и выберите самое раннее. После ответа появляются даты и короткий факт, которые помогают связать изобретения, открытия и исторические вехи. Каждый раунд содержит десять вопросов из подборки 300 историй.',
+      },
+    },
+  },
+};
+
 export const brand = {
   name: 'QuizRoam',
   prefix: 'quiz',
@@ -197,7 +350,7 @@ const en = {
   privacyText:
     'Language, nickname and demo results stay in this browser. Completed Flag Master, Geo Challenge and Number IQ rounds are saved to a guest profile when the server is available. Clearing browser data removes local progress and access to that guest profile. Inactive guest profiles are deleted after 30 days. No advertising or analytics scripts are loaded.',
   aboutText:
-    'QuizRoam is a collection of short games for curious minds. Choose your favourite, practise at your own pace, and enjoy a little discovery every day. This is a frontend preview with sample questions, not an IQ assessment.',
+    'QuizRoam brings together four short games about flags, geography, number patterns and history. Play at your own pace and learn from the answers. These are games for curious minds, not an IQ assessment.',
   storageError:
     'Browser storage is unavailable. Progress will only last for this visit.',
   loading: 'Getting things ready…',
@@ -402,7 +555,7 @@ const ru: Dictionary = {
   privacyText:
     'Язык, никнейм и деморезультаты хранятся в браузере. Завершённые партии Flag Master, Geo Challenge и Number IQ сохраняются в гостевом профиле, когда сервер доступен. Очистка данных браузера удалит локальный прогресс и доступ к гостевому профилю. Неактивные гостевые профили удаляются через 30 дней. Рекламные и аналитические скрипты не загружаются.',
   aboutText:
-    'QuizRoam — короткие игры для любопытных. Выбирай любимую, тренируйся в своём темпе и открывай новое каждый день. Это прототип интерфейса с примерами заданий, а не оценка IQ.',
+    'QuizRoam объединяет четыре короткие игры о флагах, географии, числовых закономерностях и истории. Играйте в своём темпе и узнавайте новое из ответов. Это игры для любопытных, а не оценка IQ.',
   storageError:
     'Хранилище браузера недоступно. Прогресс сохранится только до закрытия страницы.',
   loading: 'Готовим всё к игре…',
@@ -605,7 +758,7 @@ const uk: Dictionary = {
   privacyText:
     'Мова, нікнейм і деморезультати зберігаються у браузері. Завершені партії Flag Master, Geo Challenge і Number IQ зберігаються у гостьовому профілі, коли сервер доступний. Очищення даних браузера видалить локальний прогрес і доступ до гостьового профілю. Неактивні гостьові профілі видаляються через 30 днів. Рекламні та аналітичні скрипти не завантажуються.',
   aboutText:
-    'QuizRoam — короткі ігри для допитливих. Обирай улюблену, тренуйся у своєму темпі та відкривай нове щодня. Це прототип інтерфейсу з прикладами завдань, а не оцінка IQ.',
+    'QuizRoam об’єднує чотири короткі гри про прапори, географію, числові закономірності та історію. Грайте у своєму темпі й дізнавайтеся нове з відповідей. Це ігри для допитливих, а не оцінка IQ.',
   storageError:
     'Сховище браузера недоступне. Прогрес збережеться лише до закриття сторінки.',
   loading: 'Готуємо все до гри…',

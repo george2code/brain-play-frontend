@@ -1,5 +1,6 @@
 import { Brain } from 'lucide-react';
-import Link from 'next/link';
+
+import Link from '@/components/shared/LocalizedLink';
 
 import { brand } from '@/i18n/dictionaries';
 

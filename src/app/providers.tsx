@@ -7,6 +7,8 @@ import { AuthFeedback } from '@/components/auth/AuthFeedback';
 
 import { LocaleProvider } from '@/i18n/LocaleProvider';
 
+import type { Locale } from '@/shared/types/game.types';
+
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -19,10 +21,16 @@ function getQueryClient() {
   if (typeof window === 'undefined') return makeQueryClient();
   return (browserClient ??= makeQueryClient());
 }
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({
+  children,
+  locale,
+}: {
+  children: React.ReactNode;
+  locale: Locale;
+}) {
   return (
     <QueryClientProvider client={getQueryClient()}>
-      <LocaleProvider>
+      <LocaleProvider locale={locale}>
         <AuthFeedback />
         {children}
         <Toaster

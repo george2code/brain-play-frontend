@@ -9,7 +9,6 @@ import {
   Target,
   Trophy,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
 
 import { AccountStatus } from '@/components/auth/AccountStatus';
@@ -17,6 +16,7 @@ import { DailyCard } from '@/components/games/DailyCard';
 import { GameCard } from '@/components/games/GameCard';
 import { ProfileSettings } from '@/components/profile/ProfileSettings';
 import { AdSlot } from '@/components/shared/AdSlot';
+import Link from '@/components/shared/LocalizedLink';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';

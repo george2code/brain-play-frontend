@@ -1,6 +1,7 @@
 'use client';
 import { Compass } from 'lucide-react';
-import Link from 'next/link';
+
+import Link from '@/components/shared/LocalizedLink';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 

@@ -9,8 +9,6 @@ import {
   Trophy,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { useRef, useState } from 'react';
 
 import { SignInDialog } from '@/components/auth/SignInDialog';
 import { GameArtwork } from '@/components/games/GameArtwork';
@@ -18,6 +16,7 @@ import { GameRecommendations } from '@/components/games/GameRecommendations';
 import { QuestionVisual } from '@/components/games/QuestionVisual';
 import { TimeTravelerChoices } from '@/components/games/TimeTravelerChoices';
 import { AdSlot } from '@/components/shared/AdSlot';
+import Link from '@/components/shared/LocalizedLink';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
@@ -26,12 +25,14 @@ import { ROUTES } from '@/config/routes.config';
 import { currentRulesVersion } from '@/constants/game-rules.constants';
 
 import { useDemoProfile } from '@/hooks/useDemoProfile';
+import { useLocalePreservedState } from '@/hooks/useLocalePreservedState';
 import {
   VERIFIED_PROGRESS_EVENT,
   useVerifiedProgress,
 } from '@/hooks/useVerifiedProgress';
 
 import { useLocale } from '@/i18n/LocaleProvider';
+import { seoCopy } from '@/i18n/dictionaries';
 
 import { cn } from '@/lib/utils';
 
@@ -73,27 +74,80 @@ export function GameSession({
   dailyDate?: string;
 }) {
   const { locale, t } = useLocale();
+  const Heading = dailyDate ? 'h2' : 'h1';
   const { profile, complete } = useDemoProfile();
   const { history: savedHistory } = useVerifiedProgress();
-  const [phase, setPhase] = useState<'intro' | 'playing' | 'result'>('intro');
-  const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [correct, setCorrect] = useState(0);
-  const [result, setResult] = useState<DemoAttempt | null>(null);
-  const [flagQuestions, setFlagQuestions] = useState<DemoQuestion[]>([]);
-  const [numberQuestions, setNumberQuestions] = useState<DemoQuestion[]>([]);
-  const [geoQuestions, setGeoQuestions] = useState<GeoQuestion[]>([]);
-  const [timeQuestions, setTimeQuestions] = useState<TimeTravelerQuestion[]>(
-    [],
+  const [round, updateRound, transient] = useLocalePreservedState(
+    game.code + ':' + (dailyDate ?? 'classic'),
+    {
+      phase: 'intro' as 'intro' | 'playing' | 'result',
+      index: 0,
+      selected: null as number | null,
+      correct: 0,
+      result: null as DemoAttempt | null,
+      flagQuestions: [] as DemoQuestion[],
+      numberQuestions: [] as DemoQuestion[],
+      geoQuestions: [] as GeoQuestion[],
+      timeQuestions: [] as TimeTravelerQuestion[],
+      numberLevel: 'mixed' as NumberLevel,
+      roundStorage: 'demo' as 'cloud' | 'demo',
+      starting: false,
+      saving: false,
+      saveError: false,
+    },
+    {
+      sessionId: { current: '' },
+      answers: { current: [] as number[] },
+      saved: { current: false },
+    },
   );
-  const [numberLevel, setNumberLevel] = useState<NumberLevel>('mixed');
-  const [roundStorage, setRoundStorage] = useState<'cloud' | 'demo'>('demo');
-  const [starting, setStarting] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(false);
-  const sessionId = useRef('');
-  const answers = useRef<number[]>([]);
-  const saved = useRef(false);
+  const {
+    phase,
+    index,
+    selected,
+    correct,
+    result,
+    flagQuestions,
+    numberQuestions,
+    geoQuestions,
+    timeQuestions,
+    numberLevel,
+    roundStorage,
+    starting,
+    saving,
+    saveError,
+  } = round;
+  const {
+    sessionId: sessionIdRef,
+    answers: answersRef,
+    saved: savedRef,
+  } = transient;
+  const setPhase = (value: typeof round.phase) => updateRound({ phase: value });
+  const setIndex = (value: typeof round.index) => updateRound({ index: value });
+  const setSelected = (value: typeof round.selected) =>
+    updateRound({ selected: value });
+  const setCorrect = (value: typeof round.correct) =>
+    updateRound({ correct: value });
+  const setResult = (value: typeof round.result) =>
+    updateRound({ result: value });
+  const setFlagQuestions = (value: typeof round.flagQuestions) =>
+    updateRound({ flagQuestions: value });
+  const setNumberQuestions = (value: typeof round.numberQuestions) =>
+    updateRound({ numberQuestions: value });
+  const setGeoQuestions = (value: typeof round.geoQuestions) =>
+    updateRound({ geoQuestions: value });
+  const setTimeQuestions = (value: typeof round.timeQuestions) =>
+    updateRound({ timeQuestions: value });
+  const setNumberLevel = (value: typeof round.numberLevel) =>
+    updateRound({ numberLevel: value });
+  const setRoundStorage = (value: typeof round.roundStorage) =>
+    updateRound({ roundStorage: value });
+  const setStarting = (value: typeof round.starting) =>
+    updateRound({ starting: value });
+  const setSaving = (value: typeof round.saving) =>
+    updateRound({ saving: value });
+  const setSaveError = (value: typeof round.saveError) =>
+    updateRound({ saveError: value });
   const questions =
     game.code === 'flag-master'
       ? flagQuestions
@@ -201,9 +255,9 @@ export function GameSession({
         setRoundStorage('demo');
       }
     }
-    sessionId.current = nextId;
-    answers.current = [];
-    saved.current = false;
+    sessionIdRef.current = nextId;
+    answersRef.current = [];
+    savedRef.current = false;
     setSaveError(false);
     setIndex(0);
     setCorrect(0);
@@ -213,8 +267,8 @@ export function GameSession({
     setStarting(false);
   }
   async function advance() {
-    if (selected === null || saving || saved.current) return;
-    answers.current[index] = selected;
+    if (selected === null || saving || savedRef.current) return;
+    answersRef.current[index] = selected;
     const nextCorrect = correct + Number(selected === question.answer);
     if (index < questions.length - 1) {
       setCorrect(nextCorrect);
@@ -227,14 +281,14 @@ export function GameSession({
         try {
           if (game.code === 'flag-master')
             verifiedResult = await completeFlagRound(
-              sessionId.current,
-              answers.current,
+              sessionIdRef.current,
+              answersRef.current,
             );
           if (game.code === 'number-iq')
             verifiedResult = await completeQuizRound(
               game.code,
-              sessionId.current,
-              answers.current,
+              sessionIdRef.current,
+              answersRef.current,
             );
           if (game.code === 'geo-challenge') {
             const { getGeoAreas } =
@@ -242,22 +296,22 @@ export function GameSession({
             const geoAnswers = geoQuestions.map(
               (item, questionIndex) =>
                 getGeoAreas(item.mapRegion, item.viewport)[
-                  answers.current[questionIndex]
+                  answersRef.current[questionIndex]
                 ]?.id ?? '',
             );
             verifiedResult = await completeQuizRound(
               game.code,
-              sessionId.current,
+              sessionIdRef.current,
               geoAnswers,
             );
           }
           if (game.code === 'time-traveler')
             verifiedResult = await completeQuizRound(
               game.code,
-              sessionId.current,
+              sessionIdRef.current,
               timeQuestions.map(
                 (item, questionIndex) =>
-                  item.cardIds[answers.current[questionIndex]],
+                  item.cardIds[answersRef.current[questionIndex]],
               ),
             );
           window.dispatchEvent(new Event(VERIFIED_PROGRESS_EVENT));
@@ -267,9 +321,9 @@ export function GameSession({
           return;
         }
       }
-      saved.current = true;
+      savedRef.current = true;
       const attempt: DemoAttempt = {
-        id: sessionId.current,
+        id: sessionIdRef.current,
         game: game.code,
         mode: dailyDate ? 'daily' : 'practice',
         ...(dailyDate ? { dailyDate } : {}),
@@ -329,9 +383,9 @@ export function GameSession({
               <p className="eyebrow mb-3 text-muted-foreground">
                 {game.category[locale]}
               </p>
-              <h1 className="text-4xl font-semibold tracking-tight">
+              <Heading className="text-4xl font-semibold tracking-tight">
                 {game.title}
-              </h1>
+              </Heading>
               <p className="mt-4 leading-relaxed text-muted-foreground">
                 {game.code === 'flag-master'
                   ? t.flagGameIntro
@@ -353,6 +407,12 @@ export function GameSession({
                       : game.code === 'time-traveler'
                         ? t.timeRules
                         : t.demoRules}
+              </p>
+              <h2 className="mt-6 text-lg font-semibold">
+                {seoCopy[locale].games[game.code].heading}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {seoCopy[locale].games[game.code].body}
               </p>
               {game.code === 'number-iq' && !dailyDate && (
                 <div className="mt-6">
@@ -415,7 +475,7 @@ export function GameSession({
         {phase === 'playing' && (
           <section className="surface-card p-6 sm:p-9" aria-label={game.title}>
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h1 className="text-lg font-semibold">{game.title}</h1>
+              <Heading className="text-lg font-semibold">{game.title}</Heading>
               <span className="text-xs text-muted-foreground">
                 {t.round} {index + 1} {t.of} {questions.length}
               </span>
@@ -598,9 +658,9 @@ export function GameSession({
               <PartyPopper size={38} strokeWidth={1.5} />
             </span>
             <p className="eyebrow mb-3 text-primary">{game.title}</p>
-            <h1 className="text-3xl font-semibold tracking-tight">
+            <Heading className="text-3xl font-semibold tracking-tight">
               {isCompletedDaily ? t.dailyCompleted : t.resultTitle}
-            </h1>
+            </Heading>
             <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
               {isCloudResult
                 ? t.flagResultSaved

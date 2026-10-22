@@ -16,15 +16,15 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { useLocale } from '@/i18n/LocaleProvider';
 
-function discardPrivateCaches() {
+function discardPrivateCaches(locale: string) {
   // A full reload cancels in-flight requests and discards all account-scoped query data.
   // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-  window.location.assign('/profile');
+  window.location.assign('/' + locale + '/profile');
 }
 
 export function AccountStatus() {
   const { user, registered, loading } = useAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [busy, setBusy] = useState(false);
   return (
     <section className="flex flex-col items-start gap-5 rounded-2xl border border-primary/15 bg-hero p-6">
@@ -45,14 +45,14 @@ export function AccountStatus() {
             try {
               // Use the refresh-aware client so expired access cookies can still sign out.
               await sessionClient.post('/auth/logout', {});
-              discardPrivateCaches();
+              discardPrivateCaches(locale);
             } catch (error) {
               if (isUnauthorized(error)) {
                 // Refresh clears invalid cookies. Reload also discards private query caches.
                 await authClient
                   .post('/auth/logout', {})
                   .catch(() => undefined);
-                discardPrivateCaches();
+                discardPrivateCaches(locale);
               } else {
                 toast.error(t.googleError);
                 setBusy(false);

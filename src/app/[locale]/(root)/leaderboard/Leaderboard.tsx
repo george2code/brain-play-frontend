@@ -1,11 +1,11 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Trophy } from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
 
 import { GameArtwork } from '@/components/games/GameArtwork';
 import { AdSlot } from '@/components/shared/AdSlot';
+import Link from '@/components/shared/LocalizedLink';
 import { Button } from '@/components/ui/button';
 import {
   Table,

@@ -15,6 +15,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Render the logo wordmark as lowercase `quizroam.`: black `quiz`, green `roam`, and an orange baseline period. Keep the green brain icon. Use `QuizRoam` in ordinary copy and metadata.
 - Keep thin server route files and named screen components as in Show Ring / Tea Shop.
 - All interactive copy belongs in `src/i18n/dictionaries.ts` (EN/UK/RU).
+- Frontend hosting target: Vercel. Routes live under `src/app/[locale]`; URL locale is authoritative. Use `LocalizedLink` for internal UI links. Keep preview noindex; `SEO_INDEXABLE=true` enables indexing only in production. See `docs/SEO-LAUNCH.md` for launch checks.
 - Use shared Tailwind tokens and shadcn Base UI primitives. Base UI uses `render`.
 - Demo data must remain separate from API data and must never enter verified rankings.
 - Do not add auth endpoints the backend does not implement, store tokens in localStorage, or put database secrets in this frontend.

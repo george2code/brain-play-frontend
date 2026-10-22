@@ -1,8 +1,8 @@
 'use client';
 import { ArrowUpRight, Clock3, Gamepad2, Target, Trophy } from 'lucide-react';
-import Link from 'next/link';
 
 import { GameArtwork } from '@/components/games/GameArtwork';
+import Link from '@/components/shared/LocalizedLink';
 
 import { ROUTES } from '@/config/routes.config';
 

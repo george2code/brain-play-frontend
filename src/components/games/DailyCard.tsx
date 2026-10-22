@@ -1,6 +1,7 @@
 'use client';
 import { ArrowRight, Check, Sparkles, Sun } from 'lucide-react';
-import Link from 'next/link';
+
+import Link from '@/components/shared/LocalizedLink';
 
 import { ROUTES } from '@/config/routes.config';
 
