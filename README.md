@@ -123,9 +123,9 @@ Frontend не обращается к базе напрямую. При подк
 ## Следующий этап
 
 1. Провести редакторскую проверку исторических фактов и переводов перед публичным запуском; источники и лицензии указаны в `src/services/demo/flags/README.md`.
-2. Настроить Google provider в Supabase и проверить настоящий OAuth-вход. Backend PKCE и объединение гостевой истории реализованы; инструкция находится в `brain-play-backend/docs/GOOGLE_AUTH_SETUP.md`.
+2. Google Cloud и Supabase Google provider настроены для production OAuth-входа. Render API работает на `api.quizroam.net`; Google Auth Platform опубликована для всех пользователей. Вход `yurii.alx@gmail.com`, возврат через NestJS callback и загрузка серверного профиля проверены. Перенос завершённых серверных партий отдельного гостя ещё требует ручной проверки; инструкция находится в `brain-play-backend/docs/GOOGLE_AUTH_SETUP.md`.
 3. Реализовать полноценное правило единственного результата Daily Challenge в базе, не импортируя демоочки в проверенный рейтинг.
-4. Локализованные metadata/URL, canonical, hreflang, sitemap и robots опубликованы на `quizroam.net`. Search Console подтвердил домен и принял sitemap с 24 URL. AdSense подтвердил владение сайтом через `ads.txt` и получил сведения для платёжного профиля; все обязательные шаги начальной настройки завершены, сайт ожидает рассмотрения Google со статусом `Getting ready`. Consent и рекламный код пока не настроены. Игры работают в локальном деморежиме: для сохранения результатов и авторизации нужен production backend, его CORS/cookies/OAuth и настоящий `NEXT_PUBLIC_API_URL`. Preview имеет `noindex`. Антибот-защита гостевого входа остаётся отдельной задачей.
+4. Локализованные metadata/URL, canonical, hreflang, sitemap и robots опубликованы на `quizroam.net`. Search Console подтвердил домен и принял sitemap с 24 URL. AdSense подтверждает `ads.txt`, но отклонил сайт с замечанием `Low-value content`; повторная проверка остаётся отдельным этапом. Consent и рекламный код пока не настроены. Production backend на Render, CORS/cookies/OAuth и `NEXT_PUBLIC_API_URL` подключены; при недоступности API игры явно переключаются на локальное демо, которое не попадает в проверенный рейтинг. Preview имеет `noindex`. Антибот-защита гостевого входа остаётся отдельной задачей.
 
 ## Проверки
 

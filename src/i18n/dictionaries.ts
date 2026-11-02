@@ -348,7 +348,7 @@ const en = {
   faq: 'Questions & answers',
   privacy: 'Privacy',
   privacyText:
-    'Language, nickname and demo results stay in this browser. Completed Flag Master, Geo Challenge and Number IQ rounds are saved to a guest profile when the server is available. Clearing browser data removes local progress and access to that guest profile. Inactive guest profiles are deleted after 30 days. No advertising or analytics scripts are loaded.',
+    'Language, nickname and demo results stay in this browser. When the server is available, completed rounds from all four games are saved to a temporary guest profile. If you connect Google, Google shares your name, profile picture and email with Supabase Auth; QuizRoam uses your verified identity and email to keep your online progress across devices. QuizRoam does not access your Gmail. Clearing browser data removes local progress and access to an unlinked guest profile. Guest profiles inactive for 30 days are deleted; a Google-linked profile remains available when you sign in again. No advertising or analytics scripts are currently loaded.',
   aboutText:
     'QuizRoam brings together four short games about flags, geography, number patterns and history. Play at your own pace and learn from the answers. These are games for curious minds, not an IQ assessment.',
   storageError:
@@ -553,7 +553,7 @@ const ru: Dictionary = {
   faq: 'Вопросы и ответы',
   privacy: 'Конфиденциальность',
   privacyText:
-    'Язык, никнейм и деморезультаты хранятся в браузере. Завершённые партии Flag Master, Geo Challenge и Number IQ сохраняются в гостевом профиле, когда сервер доступен. Очистка данных браузера удалит локальный прогресс и доступ к гостевому профилю. Неактивные гостевые профили удаляются через 30 дней. Рекламные и аналитические скрипты не загружаются.',
+    'Язык, никнейм и деморезультаты хранятся в браузере. Когда сервер доступен, завершённые партии всех четырёх игр сохраняются во временном гостевом профиле. При подключении Google он передаёт имя, фото профиля и email в Supabase Auth; QuizRoam использует подтверждённую личность и email, чтобы сохранять онлайн-прогресс между устройствами. Доступа к Gmail у QuizRoam нет. Очистка данных браузера удалит локальный прогресс и доступ к гостевому профилю без привязки. Неактивные гостевые профили удаляются через 30 дней; профиль с Google остаётся доступен после повторного входа. Рекламные и аналитические скрипты сейчас не загружаются.',
   aboutText:
     'QuizRoam объединяет четыре короткие игры о флагах, географии, числовых закономерностях и истории. Играйте в своём темпе и узнавайте новое из ответов. Это игры для любопытных, а не оценка IQ.',
   storageError:
@@ -756,7 +756,7 @@ const uk: Dictionary = {
   faq: 'Запитання та відповіді',
   privacy: 'Конфіденційність',
   privacyText:
-    'Мова, нікнейм і деморезультати зберігаються у браузері. Завершені партії Flag Master, Geo Challenge і Number IQ зберігаються у гостьовому профілі, коли сервер доступний. Очищення даних браузера видалить локальний прогрес і доступ до гостьового профілю. Неактивні гостьові профілі видаляються через 30 днів. Рекламні та аналітичні скрипти не завантажуються.',
+    'Мова, нікнейм і деморезультати зберігаються у браузері. Коли сервер доступний, завершені партії всіх чотирьох ігор зберігаються в тимчасовому гостьовому профілі. Після підключення Google він передає ім’я, фото профілю та email до Supabase Auth; QuizRoam використовує підтверджену особу й email, щоб зберігати онлайн-прогрес між пристроями. Доступу до Gmail у QuizRoam немає. Очищення даних браузера видалить локальний прогрес і доступ до гостьового профілю без прив’язки. Неактивні гостьові профілі видаляються через 30 днів; профіль із Google залишається доступним після повторного входу. Рекламні та аналітичні скрипти зараз не завантажуються.',
   aboutText:
     'QuizRoam об’єднує чотири короткі гри про прапори, географію, числові закономірності та історію. Грайте у своєму темпі й дізнавайтеся нове з відповідей. Це ігри для допитливих, а не оцінка IQ.',
   storageError:
