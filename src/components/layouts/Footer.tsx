@@ -27,7 +27,6 @@ export function Footer() {
           <Link className="py-2 hover:text-primary" href="/privacy">
             {t.privacy}
           </Link>
-          <span className="rounded-md bg-secondary px-2 py-1">{t.demo}</span>
         </div>
       </div>
     </footer>
